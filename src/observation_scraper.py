@@ -75,6 +75,8 @@ class ObservationScraper:
         :return: A dictionary of the scraped webpage
         """
         template = cnst.observation_template.copy()
+
+        # TODO - Add timeouts 
         r = requests.get(url)
         observation = url.split("/")[-2]
         if self.fetch_logging:
