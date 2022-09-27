@@ -71,6 +71,7 @@ class ObservationListFetch:
         with open(self.save_name, "w") as file_out:
             json.dump({"observation_ids": ids}, file_out)
         print(f"Wrote {self.save_name} to disk")
+        return ids
 
     def get_page_observation_ids(self, url):
         res = ru.get_request(url)

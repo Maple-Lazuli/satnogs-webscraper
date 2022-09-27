@@ -7,10 +7,10 @@ import os
 
 from bs4 import BeautifulSoup as bs
 import html5lib
-import requests
 
 import src.constants as cnst
 import src.image_utils as iu
+import src.request_utils as ru
 
 
 class ObservationScraper:
@@ -32,24 +32,6 @@ class ObservationScraper:
         self.prints = prints
         cnst.verify_directories()
 
-    def scrape_observations(self, observations_list, write_disk=True):
-        """
-        Takes a list of observations and scrapes the webpages associated with those URLs
-        :param observations_list: The list of observations to pull webpages for
-        :param write_disk: Boolean on whether to write the resulting list of observations to the disk
-        :return: None. Updates the object's observations list
-        """
-        for observation in observations_list:
-            url = f'{cnst.web_address}{cnst.observations}{observation}/'
-            self.observations_list.append(self.scrape_observation(url))
-        if write_disk:
-            for observation in self.observations_list:
-                with open(os.path.join(self.observation_save_dir,
-                                       f"{observation['Observation_id']}.json"), 'w') as obs_out:
-                    json.dump(observation, obs_out)
-                print(f"Saved JSON for {observation} to disk.") if self.prints else None
-        return self.observations_list
-
     def multiprocess_scrape_observations(self, observations_list, write_disk=True):
         """
         Functions similar to scrape_observations, but does multiple simultaneously
@@ -60,12 +42,7 @@ class ObservationScraper:
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
         pool = Pool()
         self.observations_list = pool.map(self.scrape_observation, urls)
-        if write_disk:
-            for observation in self.observations_list:
-                with open(os.path.join(self.observation_save_dir,
-                                       f"{observation['Observation_id']}.json"), 'w') as obs_out:
-                    json.dump(observation, obs_out)
-                print(f"Saved JSON for {observation} to disk.") if self.prints else None
+
         return self.observations_list
 
     def scrape_observation(self, url):
@@ -74,10 +51,10 @@ class ObservationScraper:
         :param url: The url to the website to scrape
         :return: A dictionary of the scraped webpage
         """
-        template = cnst.observation_template.copy()
+        # TODO Test to see if the observation has already been scraped
 
-        # TODO - Add timeouts 
-        r = requests.get(url)
+        template = cnst.observation_template.copy()
+        r = ru.get_request(url)
         observation = url.split("/")[-2]
         if self.fetch_logging:
             with open(self.log_file_loc, 'a') as log:
@@ -107,7 +84,10 @@ class ObservationScraper:
             template['Status'] = status[0].text.strip()
             template['Status_Message'] = status[0].attrs['title'].strip()
         template['Observation_id'] = observation
+
+        # TODO SAVE THE SCRAPE TO THE DISK
         print(f"Successful scrape for {url}") if self.prints else None
+
         return template
 
     def scrape_div(self, div):
@@ -168,7 +148,7 @@ class ObservationScraper:
         :param file_name: The name the file should be saved as.
         :return: The shape of the cropped image and name of the waterfall written to disk as a bytes object.
         """
-        res = requests.get(url)
+        res = ru.get_request(url)
         waterfall_name = self.waterfall_path + file_name
 
         with open(waterfall_name, 'wb') as out:
