@@ -6,6 +6,7 @@ import html5lib
 import json
 from multiprocessing import Pool
 
+import src.constants as cnst
 import src.request_utils as ru
 
 
@@ -64,11 +65,12 @@ class ObservationListFetch:
                 continue
             if file.find(".json") == -1:
                 continue
-            with open(file, "r") as file_in:
+            with open(os.path.join(self.save_dir,file), "r") as file_in:
                 ids.append(json.load(file_in)['IDs'])
-
+        ids = [idx for group in ids for idx in group]
         with open(self.save_name, "w") as file_out:
             json.dump({"observation_ids": ids}, file_out)
+        print(f"Wrote {self.save_name} to disk")
 
     def get_page_observation_ids(self, url):
         res = ru.get_request(url)
@@ -92,5 +94,6 @@ class ObservationListFetch:
 
 if __name__ == "__main__":
     bad_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode="
-    unknown_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rwu&transmitter_mode="
-    good_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw1&transmitter_mode="
+    fetch_bad = ObservationListFetch(url = bad_signals, save_name="bad.json", save_dir=cnst.directories["bad"],
+                                     resume=False, page_limit=5)
+    fetch_bad.fetch_ids()
