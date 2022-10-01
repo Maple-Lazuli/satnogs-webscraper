@@ -14,7 +14,7 @@ import src.request_utils as ru
 
 
 class ObservationScraper:
-    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True):
+    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, re_fetch = False):
         """
         Scrapes the webpages for satellite observations. Waterfall fetches are set to false by default due to the
         very large file sizes.
@@ -30,6 +30,7 @@ class ObservationScraper:
         self.log_file_loc = cnst.files["log_file"]
         self.waterfall_path = cnst.directories['waterfalls']
         self.prints = prints
+        self.re_fetch = re_fetch
         cnst.verify_directories()
 
     def multiprocess_scrape_observations(self, observations_list, write_disk=True):
@@ -51,20 +52,14 @@ class ObservationScraper:
         :param url: The url to the website to scrape
         :return: A dictionary of the scraped webpage
         """
-        # TODO Test to see if the observation has already been scraped
+        observation = url.split("/")[-2]
+        if not self.re_fetch:
+            file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
+            if os.path.isfile(file_name):
+                return {}
 
         template = cnst.observation_template.copy()
         r = ru.get_request(url)
-        observation = url.split("/")[-2]
-        if self.fetch_logging:
-            with open(self.log_file_loc, 'a') as log:
-                log.writelines(f'URL: {url} \n')
-                log.writelines(f'status: {r.status_code} \n')
-                log.writelines(f'header: {r.headers} \n')
-
-        if r.status_code != 200:
-            print(f"Non 200 Status for {url}") if self.prints else None
-            return template
 
         observation_web_page = bs(r.content, "html5lib")
         front_line_divs = observation_web_page.find_all("div", class_='front-line')
@@ -85,7 +80,8 @@ class ObservationScraper:
             template['Status_Message'] = status[0].attrs['title'].strip()
         template['Observation_id'] = observation
 
-        # TODO SAVE THE SCRAPE TO THE DISK
+        with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
+            json.dump(template, obs_out)
         print(f"Successful scrape for {url}") if self.prints else None
 
         return template
@@ -165,10 +161,7 @@ if __name__ == '__main__':
     scraper = ObservationScraper()
     scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/5025420/')
     scrape2 = scraper.scrape_observation('https://network.satnogs.org/observations/44444/')
-    print(scrape2)
     print(f"{scrape1}")
     print(f"{scrape2}")
-    print("Observations Pull")
-    scraper.scrape_observations([5025420, 44444])
     print("Multiprocess Observations Pull")
     scraper.multiprocess_scrape_observations([5025420, 44444])
