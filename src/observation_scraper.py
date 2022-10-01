@@ -82,7 +82,6 @@ class ObservationScraper:
 
         with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
             json.dump(template, obs_out)
-        print(f"Successful scrape for {url}") if self.prints else None
 
         return {}
 
