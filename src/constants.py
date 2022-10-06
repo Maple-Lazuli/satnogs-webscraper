@@ -22,9 +22,6 @@ directories = {
     "data": "./data",
     "satellites": "./data/satellites/",
     "observation_pages": "./data/observation_pages/",
-    "good": "./data/observation_pages/good/",
-    "unknown": "./data/observation_pages/unknown/",
-    "bad": "./data/observation_pages/bad/",
     "observations": "./data/observations/",
     "waterfalls": "./data/observations/waterfalls/",
     "logs": "./data/logs/"

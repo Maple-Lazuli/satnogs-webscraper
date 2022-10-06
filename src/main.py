@@ -1,33 +1,46 @@
+import argparse
 import os
+
 import src.constants as cnst
 import src.observation_scraper as obs
 import src.observation_list_scraper as ols
 
-if __name__ == "__main__":
+
+def main(flags):
     cnst.verify_directories()
 
-    bad_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode="
-    unknown_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rwu&transmitter_mode="
-    good_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw1&transmitter_mode="
+    obs_list_temp_dir = os.path.join(cnst.directories['observation_pages'], flags.obs_list_save_name.split[0])
 
-    bad_name = os.path.join(cnst.directories['observation_pages'], "bad.json")
-    bad_obs_list = ols.ObservationListFetch(url=bad_signals, save_name=bad_name, save_dir=cnst.directories["bad"],
-                                            resume=True)
-    bad_obs_ids = bad_obs_list.fetch_ids()
+    if os.path.isdir(obs_list_temp_dir):
+        print(f"List Storage Dir: {obs_list_temp_dir}")
+    else:
+        os.makedirs(obs_list_temp_dir)
+        print(f"List Storage Dir: {obs_list_temp_dir}")
 
-    unk_name = os.path.join(cnst.directories['observation_pages'], "unk.json")
-    unk_obs_list = ols.ObservationListFetch(url=unknown_signals, save_name=unk_name,
-                                            save_dir=cnst.directories["unknown"],
-                                            resume=True)
-    unk_obs_ids = unk_obs_list.fetch_ids()
+    obs_list_scraper = ols.ObservationListFetch(url=flags.url, save_name=flags.obs_list_save_name,
+                                                save_dir=cnst.directories["bad"],
+                                                resume=True)
+    ids = obs_list_scraper.fetch_ids()
 
-    good_name = os.path.join(cnst.directories['observation_pages'], "unk.json")
-    good_obs_list = ols.ObservationListFetch(url=good_signals, save_name=good_name, save_dir=cnst.directories["good"],
-                                             resume=True)
-    good_obs_ids = good_obs_list.fetch_ids()
+    obs_craper = obs.ObservationScraper()
 
-    scraper = obs.ObservationScraper()
-    scraper.multiprocess_scrape_observations(bad_obs_ids)
-    scraper.multiprocess_scrape_observations(unk_obs_ids)
-    scraper.multiprocess_scrape_observations(good_obs_ids)
+    obs_craper.multiprocess_scrape_observations(ids)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--url', type=str,
+                        default='https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&transmitter_mode=',
+                        help='SATNOGS Observations List Page To Scrape')
+
+    parser.add_argument('--obs-list-save-name', type=str,
+                        default='obs_list.json',
+                        help='The name of the json file that will contain the observation IDs to scrape')
+
+    parsed_flags, _ = parser.parse_known_args()
+
+    main(parsed_flags)
+
+    cnst.verify_directories()
 
