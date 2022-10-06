@@ -9,7 +9,7 @@ import src.observation_list_scraper as ols
 def main(flags):
     cnst.verify_directories()
 
-    obs_list_temp_dir = os.path.join(cnst.directories['observation_pages'], flags.obs_list_save_name.split[0])
+    obs_list_temp_dir = os.path.join(cnst.directories['observation_pages'], flags.obs_list_save_name.split(".")[0])
 
     if os.path.isdir(obs_list_temp_dir):
         print(f"List Storage Dir: {obs_list_temp_dir}")
@@ -18,7 +18,7 @@ def main(flags):
         print(f"List Storage Dir: {obs_list_temp_dir}")
 
     obs_list_scraper = ols.ObservationListFetch(url=flags.url, save_name=flags.obs_list_save_name,
-                                                save_dir=cnst.directories["bad"],
+                                                save_dir=obs_list_temp_dir,
                                                 resume=True)
     ids = obs_list_scraper.fetch_ids()
 
