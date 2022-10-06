@@ -22,16 +22,16 @@ def main(flags):
                                                 resume=True)
     ids = obs_list_scraper.fetch_ids()
 
-    obs_craper = obs.ObservationScraper()
+    obs_scraper = obs.ObservationScraper()
 
-    obs_craper.multiprocess_scrape_observations(ids)
+    obs_scraper.multiprocess_scrape_observations(ids)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--url', type=str,
-                        default='https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&transmitter_mode=',
+                        default='https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode=',
                         help='SATNOGS Observations List Page To Scrape')
 
     parser.add_argument('--obs-list-save-name', type=str,

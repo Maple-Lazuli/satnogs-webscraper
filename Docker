@@ -8,9 +8,9 @@ RUN apt install python3 -y
 
 RUN apt install python3-pip -y
 
-RUN pip install -r opt/app/requirements.txt
-
 COPY requirements.txt /opt/app/
+
+RUN pip install -r opt/app/requirements.txt
 
 COPY src /opt/app/src
 
@@ -18,6 +18,4 @@ RUN mkdir /opt/app/data
 
 WORKDIR /opt/app
 
-ENTRYPOINT ["python3"]
-
-CMD ["-m", "src.main"]
+ENTRYPOINT ["python3", "-m", "src.main"]
