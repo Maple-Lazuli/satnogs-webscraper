@@ -3,6 +3,7 @@ from os.path import exists
 import hashlib
 import json
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 import os
 
 from bs4 import BeautifulSoup as bs
@@ -14,7 +15,7 @@ import src.request_utils as ru
 
 
 class ObservationScraper:
-    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk = True):
+    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk = True, cpus = 1):
         """
         Scrapes the webpages for satellite observations. Waterfall fetches are set to false by default due to the
         very large file sizes.
@@ -32,6 +33,10 @@ class ObservationScraper:
         self.prints = prints
         self.check_disk = check_disk
         cnst.verify_directories()
+        if cpus is None:
+            self.cpus = cpu_count()
+        else:
+            self.cpus = cpus
 
     def multiprocess_scrape_observations(self, observations_list, write_disk=True):
         """
@@ -41,7 +46,7 @@ class ObservationScraper:
         :return: None. Updates the instantiated object's observations_list
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
-        pool = Pool()
+        pool = Pool(self.cpus)
         self.observations_list = pool.map(self.scrape_observation, urls)
 
         return self.observations_list

@@ -5,6 +5,7 @@ import bs4
 import html5lib
 import json
 from multiprocessing import Pool
+from multiprocessing import cpu_count
 
 import src.constants as cnst
 import src.request_utils as ru
@@ -28,7 +29,7 @@ def get_pages(url):
 
 
 class ObservationListFetch:
-    def __init__(self, url, save_name, save_dir, page_limit=None, resume = True):
+    def __init__(self, url, save_name, save_dir, page_limit=None, resume=True, cpus=None):
         self.url = url
         self.observation_list = []
         self.url_list = []
@@ -36,6 +37,10 @@ class ObservationListFetch:
         self.save_dir = save_dir
         self.page_limit = page_limit
         self.resume = resume
+        if cpus is None:
+            self.cpus = cpu_count()
+        else:
+            self.cpus = cpus
 
     def multiprocess_id_fetch(self):
         urls = get_pages(self.url)
@@ -54,7 +59,7 @@ class ObservationListFetch:
 
         if self.page_limit is not None:
             urls = urls[:self.page_limit]
-        pool = Pool()
+        pool = Pool(self.cpus)
         pool.map(self.get_page_observation_ids, urls)
 
     def fetch_ids(self):
@@ -65,7 +70,7 @@ class ObservationListFetch:
                 continue
             if file.find(".json") == -1:
                 continue
-            with open(os.path.join(self.save_dir,file), "r") as file_in:
+            with open(os.path.join(self.save_dir, file), "r") as file_in:
                 ids.append(json.load(file_in)['IDs'])
         ids = [idx for group in ids for idx in group]
         with open(self.save_name, "w") as file_out:
@@ -95,6 +100,6 @@ class ObservationListFetch:
 
 if __name__ == "__main__":
     bad_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode="
-    fetch_bad = ObservationListFetch(url = bad_signals, save_name="bad.json", save_dir=cnst.directories["bad"],
+    fetch_bad = ObservationListFetch(url=bad_signals, save_name="bad.json", save_dir=cnst.directories["bad"],
                                      resume=False, page_limit=5)
     fetch_bad.fetch_ids()

@@ -19,10 +19,11 @@ def main(flags):
 
     obs_list_scraper = ols.ObservationListFetch(url=flags.url, save_name=flags.save_name,
                                                 save_dir=obs_list_temp_dir,
-                                                resume=True)
+                                                resume=True,
+                                                cpus=flags.cpus)
     ids = obs_list_scraper.fetch_ids()
 
-    obs_scraper = obs.ObservationScraper()
+    obs_scraper = obs.ObservationScraper(cpus = flags.cpus)
 
     obs_scraper.multiprocess_scrape_observations(ids)
 
@@ -37,6 +38,10 @@ if __name__ == "__main__":
     parser.add_argument('--save-name', type=str,
                         default='obs_list.json',
                         help='The name of the json file that will contain the observation IDs to scrape')
+
+    parser.add_argument('--cpus', type=int,
+                        default=20,
+                        help='The number of CPUs to use')
 
     parsed_flags, _ = parser.parse_known_args()
 
