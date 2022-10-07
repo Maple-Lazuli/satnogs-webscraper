@@ -43,9 +43,10 @@ if __name__ == "__main__":
                         default=20,
                         help='The number of CPUs to use')
 
+    parser.add_argument('--page-limit', type=int,
+                        default=0,
+                        help='The limit on the number of observation list pages to fetch')
+
     parsed_flags, _ = parser.parse_known_args()
 
     main(parsed_flags)
-
-    cnst.verify_directories()
-

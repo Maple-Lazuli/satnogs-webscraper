@@ -11,39 +11,41 @@ import src.constants as cnst
 import src.request_utils as ru
 
 
-def get_pages(url):
-    res = ru.get_request(url)
-    observation_list_page = bs(res.content, "html5lib")
-    largest_page = 0
-    nav_list = observation_list_page.find_all("ul", class_="pagination")[0]
-    for child in nav_list.children:
-        if child.name == "li":
-            for c in child.children:
-                if c.name == "a":
-                    if len(c.contents) == 1:
-                        if type(c.contents[0]) == bs4.element.NavigableString:
-                            if c.contents[0].isdigit():
-                                largest_page = max(largest_page, int(c.contents[0]))
-
-    return [f'{url}&page={page}' for page in range(1, largest_page + 1)]
-
-
 class ObservationListFetch:
-    def __init__(self, url, save_name, save_dir, page_limit=None, resume=True, cpus=None):
+    def __init__(self, url, save_name, save_dir, page_limit=0, resume=True, cpus=None):
         self.url = url
         self.observation_list = []
         self.url_list = []
         self.save_name = save_name
         self.save_dir = save_dir
-        self.page_limit = page_limit
+        self.page_limit = page_limit if page_limit != 0 else None
         self.resume = resume
         if cpus is None:
             self.cpus = cpu_count()
         else:
             self.cpus = cpus
 
+    def get_pages(self, url):
+        res = ru.get_request(url)
+        observation_list_page = bs(res.content, "html5lib")
+        largest_page = 0
+        nav_list = observation_list_page.find_all("ul", class_="pagination")[0]
+        for child in nav_list.children:
+            if child.name == "li":
+                for c in child.children:
+                    if c.name == "a":
+                        if len(c.contents) == 1:
+                            if type(c.contents[0]) == bs4.element.NavigableString:
+                                if c.contents[0].isdigit():
+                                    largest_page = max(largest_page, int(c.contents[0]))
+
+        if self.page_limit is not None:
+            return [f'{url}&page={page}' for page in range(1, largest_page + 1)][: self.page_limit]
+        else:
+            return [f'{url}&page={page}' for page in range(1, largest_page + 1)]
+
     def multiprocess_id_fetch(self):
-        urls = get_pages(self.url)
+        urls = self.get_pages(self.url)
         if self.resume:
             pages_completed = os.listdir(self.save_dir)
             pages_completed = [page.split(".")[0] for page in pages_completed]
@@ -56,11 +58,9 @@ class ObservationListFetch:
                 if page_number in pages_remaining:
                     urls_remaining.append(url)
             urls = urls_remaining
-
-        if self.page_limit is not None:
-            urls = urls[:self.page_limit]
-        pool = Pool(self.cpus)
-        pool.map(self.get_page_observation_ids, urls)
+        if len(urls) > 0:
+            pool = Pool(self.cpus)
+            pool.map(self.get_page_observation_ids, urls)
 
     def fetch_ids(self):
         self.multiprocess_id_fetch()
