@@ -15,7 +15,7 @@ import src.request_utils as ru
 
 
 class ObservationScraper:
-    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk = True, cpus = 1):
+    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk=True, cpus=1):
         """
         Scrapes the webpages for satellite observations. Waterfall fetches are set to false by default due to the
         very large file sizes.
@@ -33,16 +33,12 @@ class ObservationScraper:
         self.prints = prints
         self.check_disk = check_disk
         cnst.verify_directories()
-        if cpus is None:
-            self.cpus = cpu_count()
-        else:
-            self.cpus = cpus
+        self.cpus = cpus
 
-    def multiprocess_scrape_observations(self, observations_list, write_disk=True):
+    def multiprocess_scrape_observations(self, observations_list):
         """
         Functions similar to scrape_observations, but does multiple simultaneously
         :param observations_list: The list of observations to scrape
-        :param write_disk: Boolean on whether to write for disk
         :return: None. Updates the instantiated object's observations_list
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
@@ -58,7 +54,7 @@ class ObservationScraper:
         :return: A dictionary of the scraped webpage
         """
         observation = url.split("/")[-2]
-        if not self.check_disk:
+        if self.check_disk:
             file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
             if os.path.isfile(file_name):
                 return {}
