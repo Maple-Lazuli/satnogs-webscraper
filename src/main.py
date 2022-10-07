@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing
 import os
 
 import src.constants as cnst
@@ -20,7 +21,8 @@ def main(flags):
     obs_list_scraper = ols.ObservationListFetch(url=flags.url, save_name=flags.save_name,
                                                 save_dir=obs_list_temp_dir,
                                                 resume=True,
-                                                cpus=flags.cpus)
+                                                cpus=flags.cpus,
+                                                page_limit=flags.page_limit)
     ids = obs_list_scraper.fetch_ids()
 
     obs_scraper = obs.ObservationScraper(cpus = flags.cpus)
@@ -40,7 +42,7 @@ if __name__ == "__main__":
                         help='The name of the json file that will contain the observation IDs to scrape')
 
     parser.add_argument('--cpus', type=int,
-                        default=20,
+                        default=multiprocessing.cpu_count(),
                         help='The number of CPUs to use')
 
     parser.add_argument('--page-limit', type=int,

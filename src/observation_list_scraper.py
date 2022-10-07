@@ -5,7 +5,6 @@ import bs4
 import html5lib
 import json
 from multiprocessing import Pool
-from multiprocessing import cpu_count
 
 import src.constants as cnst
 import src.request_utils as ru
@@ -20,10 +19,7 @@ class ObservationListFetch:
         self.save_dir = save_dir
         self.page_limit = page_limit if page_limit != 0 else None
         self.resume = resume
-        if cpus is None:
-            self.cpus = cpu_count()
-        else:
-            self.cpus = cpus
+        self.cpus = cpus
 
     def get_pages(self, url):
         res = ru.get_request(url)
