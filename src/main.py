@@ -22,12 +22,12 @@ def main(flags):
     obs_list_scraper = ols.ObservationListFetch(url=flags.url, save_name=save_name,
                                                 save_dir=obs_list_temp_dir,
                                                 resume=True,
-                                                cpus=flags.cpus,
+                                                cpus=flags.list_scrape_cpus,
                                                 page_limit=flags.page_limit)
     ids = obs_list_scraper.fetch_ids()
     print("Finished Page List Scraping")
     print("Starting Observation Page Scrape")
-    obs_scraper = obs.ObservationScraper(cpus=flags.cpus)
+    obs_scraper = obs.ObservationScraper(cpus=flags.obs_scrape_cpus)
     obs_scraper.multiprocess_scrape_observations(ids)
     print("Finished Observation Scrape")
     print("Creating CSV")
@@ -45,9 +45,13 @@ if __name__ == "__main__":
                         default='obs_list.json',
                         help='The name of the json file that will contain the observation IDs to scrape')
 
-    parser.add_argument('--cpus', type=int,
+    parser.add_argument('--list-scrape-cpus', type=int,
+                        default=1,
+                        help='The number of CPUs to use for scraping observation lists')
+
+    parser.add_argument('--obs-scrape-cpus', type=int,
                         default=multiprocessing.cpu_count(),
-                        help='The number of CPUs to use')
+                        help='The number of CPUs to use for scraping observation pages')
 
     parser.add_argument('--page-limit', type=int,
                         default=0,
