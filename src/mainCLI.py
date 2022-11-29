@@ -5,7 +5,7 @@ import os
 import src.constants as cnst
 import src.observation_scraper as obs
 import src.observation_list_scraper as ols
-from src.observation_dataset import create_dataset
+from src.observation_dataset import save_dataset
 
 
 def main(flags):
@@ -27,11 +27,11 @@ def main(flags):
     ids = obs_list_scraper.fetch_ids()
     print("Finished Page List Scraping")
     print("Starting Observation Page Scrape")
-    obs_scraper = obs.ObservationScraper(cpus=flags.obs_scrape_cpus)
+    obs_scraper = obs.ObservationScraper(cpus=flags.obs_scrape_cpus, grey_scale=flags.grey_scale)
     obs_scraper.multiprocess_scrape_observations(ids)
     print("Finished Observation Scrape")
     print("Creating CSV")
-    create_dataset(ids, save_name=f"{save_name}.csv")
+    save_dataset(ids, save_name=f"{save_name}.csv")
 
 
 if __name__ == "__main__":
@@ -56,6 +56,10 @@ if __name__ == "__main__":
     parser.add_argument('--page-limit', type=int,
                         default=0,
                         help='The limit on the number of observation list pages to fetch')
+
+    parser.add_argument('--grey-scale', type=bool,
+                        default=True,
+                        help='Convert the psd to grey scale.')
 
     parsed_flags, _ = parser.parse_known_args()
 
