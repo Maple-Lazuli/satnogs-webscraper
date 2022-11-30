@@ -2,10 +2,10 @@ import argparse
 import multiprocessing
 import os
 
-import src.constants as cnst
-import src.observation_scraper as obs
-import src.observation_list_scraper as ols
-from src.observation_dataset import save_dataset
+import satnogs_webscraper.constants as cnst
+import satnogs_webscraper.observation_scraper as obs
+import satnogs_webscraper.observation_list_scraper as ols
+from satnogs_webscraper.observation_dataset import save_dataset
 
 
 def main(flags):

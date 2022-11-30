@@ -6,8 +6,8 @@ import html5lib
 import json
 from multiprocessing import Pool
 
-import src.constants as cnst
-import src.request_utils as ru
+import satnogs_webscraper.constants as cnst
+import satnogs_webscraper.request_utils as ru
 
 
 class ObservationListFetch:

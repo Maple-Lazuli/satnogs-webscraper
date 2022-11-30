@@ -1,7 +1,7 @@
 import json
 import os
 import pandas as pd
-import src.constants as cnst
+import satnogs_webscraper.constants as cnst
 
 
 def save_dataset(observation_list, save_name):

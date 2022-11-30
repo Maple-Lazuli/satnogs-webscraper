@@ -9,9 +9,9 @@ import os
 from bs4 import BeautifulSoup as bs
 import html5lib
 
-import src.constants as cnst
-import src.image_utils as iu
-import src.request_utils as ru
+import satnogs_webscraper.constants as cnst
+import satnogs_webscraper.image_utils as iu
+import satnogs_webscraper.request_utils as ru
 
 
 class ObservationScraper:

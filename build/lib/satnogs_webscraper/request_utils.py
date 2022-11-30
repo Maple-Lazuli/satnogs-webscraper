@@ -4,7 +4,7 @@ import random
 import requests
 import time
 
-import src.constants as cnst
+import satnogs_webscraper.constants as cnst
 
 
 def get_request(url):
