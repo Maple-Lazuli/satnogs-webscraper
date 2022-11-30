@@ -1,1 +1,1 @@
-from satnogs_webscraper import Scraper
+from satnogs_webscraper.scraper import Scraper
