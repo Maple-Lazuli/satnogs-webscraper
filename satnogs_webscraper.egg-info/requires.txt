@@ -1,0 +1,6 @@
+bs4
+html5lib
+numpy
+pandas
+pillow
+requests
