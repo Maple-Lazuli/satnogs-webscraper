@@ -13,9 +13,12 @@ import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.image_utils as iu
 import satnogs_webscraper.request_utils as ru
 
+import satnogs_webscraper.progress_utils as pu
+
 
 class ObservationScraper:
-    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk=True, cpus=1, grey_scale = True):
+    def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk=True, cpus=1,
+                 grey_scale=True):
         """
         Scrapes the webpages for satellite observations. Waterfall fetches are set to false by default due to the
         very large file sizes.
@@ -23,6 +26,7 @@ class ObservationScraper:
         :param fetch_logging: Boolean for logging the fetches
         :param prints: Boolean for printing output in operation.
         """
+        self.temp_file = None
         self.observations_list = []
         self.fetch_waterfalls = fetch_waterfalls
         self.fetch_logging = fetch_logging
@@ -43,6 +47,9 @@ class ObservationScraper:
         :return: None. Updates the instantiated object's observations_list
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
+
+        self.temp_file = pu.setup_temp_file(items_total=len(urls), items_done=0)
+
         pool = Pool(self.cpus)
         self.observations_list = pool.map(self.scrape_observation, urls)
 
@@ -57,33 +64,40 @@ class ObservationScraper:
         observation = url.split("/")[-2]
         if self.check_disk:
             file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
-            if os.path.isfile(file_name):
-                return {}
+            if not os.path.isfile(file_name):  # make sure the observation has not already been downloaded
 
-        template = cnst.observation_template.copy()
-        r = ru.get_request(url)
+                template = cnst.observation_template.copy()
+                r = ru.get_request(url)
 
-        observation_web_page = bs(r.content, "html5lib")
-        front_line_divs = observation_web_page.find_all("div", class_='front-line')
+                observation_web_page = bs(r.content, "html5lib")
+                front_line_divs = observation_web_page.find_all("div", class_='front-line')
 
-        for div in front_line_divs:
-            key, value = self.scrape_div(div)
-            if key is not None:
-                template[key] = value
+                for div in front_line_divs:
+                    key, value = self.scrape_div(div)
+                    if key is not None:
+                        template[key] = value
 
-        waterfall_status = observation_web_page.find(id="waterfall-status-label")
-        if waterfall_status is not None:
-            template['Waterfall_Status'] = " ".join(
-                [piece.strip() for piece in waterfall_status.attrs['title'].split("\n")])
+                waterfall_status = observation_web_page.find(id="waterfall-status-label")
+                if waterfall_status is not None:
+                    template['Waterfall_Status'] = " ".join(
+                        [piece.strip() for piece in waterfall_status.attrs['title'].split("\n")])
 
-        status = observation_web_page.select("#rating-status > span")
-        if (status is not None) & (status[0] is not None):
-            template['Status'] = status[0].text.strip()
-            template['Status_Message'] = status[0].attrs['title'].strip()
-        template['Observation_id'] = observation
+                status = observation_web_page.select("#rating-status > span")
+                if (status is not None) & (status[0] is not None):
+                    template['Status'] = status[0].text.strip()
+                    template['Status_Message'] = status[0].attrs['title'].strip()
+                template['Observation_id'] = observation
 
-        with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
-            json.dump(template, obs_out)
+                with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
+                    json.dump(template, obs_out)
+
+        obs_scraped = 0
+        for path in os.listdir(cnst.directories['observations']):
+            if os.path.isfile(os.path.join(cnst.directories['observations'], path)):
+                if str(path).find('.json') != -1:
+                    obs_scraped += 1
+
+        pu.check_progress(self.temp_file, obs_scraped)
 
         return {}
 
