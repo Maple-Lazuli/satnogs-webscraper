@@ -14,9 +14,10 @@ import satnogs_webscraper.request_utils as ru
 
 import satnogs_webscraper.progress_utils as pu
 
+
 class ObservationListFetch:
     def __init__(self, url, save_name, save_dir, page_limit=0, resume=True, cpus=None):
-        self.temp_file = None
+        self.progress_dict = None
         self.url = url
         self.observation_list = []
         self.url_list = []
@@ -64,13 +65,14 @@ class ObservationListFetch:
             urls = urls_remaining
             items_done = total_urls - len(urls)
 
-        self.temp_file = pu.setup_temp_file(items_total=total_urls, items_done=items_done)
+        self.progress_dict = pu.setup_progress_dict(items_total=total_urls, items_done=items_done)
 
         if len(urls) > 0:
             pool = Pool(self.cpus)
             pool.map(self.get_page_observation_ids, urls)
+
         else:
-            pu.check_progress(self.temp_file, total_urls)
+            pu.check_progress_dict(self.progress_dict, total_urls)
 
     def fetch_ids(self):
         self.multiprocess_id_fetch()
@@ -89,6 +91,7 @@ class ObservationListFetch:
         return ids
 
     def get_page_observation_ids(self, url):
+
         res = ru.get_request(url)
         observation_list_page = bs(res.content, "html5lib")
         observation_table = observation_list_page.find_all("tbody")[0]
@@ -107,19 +110,20 @@ class ObservationListFetch:
             json.dump({"IDs": observation_ids}, file_out)
 
         # print the progress of the scrape
-        lists_scraped = 0
-        for path in os.listdir(self.save_dir):
-            if os.path.isfile(os.path.join(self.save_dir, path)):
-                if str(path).find('.json') != -1:
-                    lists_scraped += 1
-
-        pu.check_progress(self.temp_file, lists_scraped)
+        # lists_scraped = 0
+        # for path in os.listdir(self.save_dir):
+        #     if os.path.isfile(os.path.join(self.save_dir, path)):
+        #         if str(path).find('.json') != -1:
+        #             lists_scraped += 1
+        #
+        # pu.check_progress_dict(self.progress_dict, lists_scraped)
 
         return observation_ids
 
 
 if __name__ == "__main__":
     bad_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode="
-    fetch_bad = ObservationListFetch(url=bad_signals, save_name="bad.json", save_dir=cnst.directories["bad"],
-                                     resume=False, page_limit=5)
+    fetch_bad = ObservationListFetch(url=bad_signals, save_name="bad.json",
+                                     save_dir=cnst.directories["observation_pages"],
+                                     resume=False, page_limit=50)
     fetch_bad.fetch_ids()

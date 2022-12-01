@@ -39,11 +39,46 @@ def setup_temp_file(items_total, items_done):
     return temp
 
 
+def setup_progress_dict(items_total, items_done):
+    setup = {
+        'start_time': int(time.time()),
+        'items_total': items_total,
+        'items_done': items_done
+    }
+
+    return setup
+
+
 def check_progress(temp_file, items_completed):
     current_time = int(time.time())
 
-    with open(temp_file.name, 'r') as file_in:
+    with open(temp_file, 'r') as file_in:
         setup = json.load(file_in)
+
+    num_completed_since_start = abs(items_completed - setup['items_done'])
+
+    if num_completed_since_start != 0:
+        time_per_item = (current_time - setup['start_time']) / num_completed_since_start
+    else:
+        time_per_item = 0
+
+    seconds_left = time_per_item * (setup['items_total'] - items_completed)
+
+    iteration = items_completed
+
+    start_time = datetime.datetime.fromtimestamp(setup['start_time'])
+
+    prefix = datetime.datetime.strftime(start_time, "%d/%m/%y %H:%M:%S")
+
+    end_time = datetime.datetime.now() + datetime.timedelta(seconds=seconds_left)
+
+    suffix = datetime.datetime.strftime(end_time, "%d/%m/%y %H:%M:%S.")
+
+    printProgressBar(iteration, setup['items_total'], prefix=prefix, suffix=suffix)
+
+
+def check_progress_dict(setup, items_completed):
+    current_time = int(time.time())
 
     num_completed_since_start = abs(items_completed - setup['items_done'])
 

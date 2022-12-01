@@ -26,7 +26,7 @@ class ObservationScraper:
         :param fetch_logging: Boolean for logging the fetches
         :param prints: Boolean for printing output in operation.
         """
-        self.temp_file = None
+        self.progress_dict = None
         self.observations_list = []
         self.fetch_waterfalls = fetch_waterfalls
         self.fetch_logging = fetch_logging
@@ -48,7 +48,7 @@ class ObservationScraper:
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
 
-        self.temp_file = pu.setup_temp_file(items_total=len(urls), items_done=0)
+        self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
 
         pool = Pool(self.cpus)
         self.observations_list = pool.map(self.scrape_observation, urls)
@@ -91,14 +91,14 @@ class ObservationScraper:
                 with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
                     json.dump(template, obs_out)
 
-        obs_scraped = 0
-        for path in os.listdir(cnst.directories['observations']):
-            if os.path.isfile(os.path.join(cnst.directories['observations'], path)):
-                if str(path).find('.json') != -1:
-                    obs_scraped += 1
-
-        pu.check_progress(self.temp_file, obs_scraped)
-
+        # if self.progress_dict is not None:
+        #     obs_scraped = 0
+        #     for path in os.listdir(cnst.directories['observations']):
+        #         if os.path.isfile(os.path.join(cnst.directories['observations'], path)):
+        #             if str(path).find('.json') != -1:
+        #                 obs_scraped += 1
+        #
+        #     pu.check_progress_dict(self.progress_dict, obs_scraped)
         return {}
 
     def scrape_div(self, div):
