@@ -31,6 +31,8 @@ class Scraper:
     start: str = ''
     end: str = ''
     artifacts: object = -1
+    # TODO PAGE LIMIT
+    # TODO PAGE LIMIT
 
     def __post_init__(self):
         self.waterfall = Results(self.waterfall)
