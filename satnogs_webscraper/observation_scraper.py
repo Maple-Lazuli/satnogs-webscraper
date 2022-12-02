@@ -2,8 +2,8 @@ from os.path import exists
 
 import hashlib
 import json
-from multiprocessing import Pool
-from multiprocessing import cpu_count
+import dask
+from dask.diagnostics import ProgressBar
 import os
 
 from bs4 import BeautifulSoup as bs
@@ -50,8 +50,12 @@ class ObservationScraper:
 
         self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
 
-        pool = Pool(self.cpus)
-        self.observations_list = pool.map(self.scrape_observation, urls)
+        # pool = Pool(self.cpus)
+        # self.observations_list = pool.map(self.scrape_observation, urls)
+
+        tasks = [dask.delayed(self.scrape_observation)(url) for url in urls]
+        with ProgressBar():
+            dask.compute(*[tasks])
 
         return self.observations_list
 
@@ -91,14 +95,6 @@ class ObservationScraper:
                 with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
                     json.dump(template, obs_out)
 
-        # if self.progress_dict is not None:
-        #     obs_scraped = 0
-        #     for path in os.listdir(cnst.directories['observations']):
-        #         if os.path.isfile(os.path.join(cnst.directories['observations'], path)):
-        #             if str(path).find('.json') != -1:
-        #                 obs_scraped += 1
-        #
-        #     pu.check_progress_dict(self.progress_dict, obs_scraped)
         return {}
 
     def scrape_div(self, div):

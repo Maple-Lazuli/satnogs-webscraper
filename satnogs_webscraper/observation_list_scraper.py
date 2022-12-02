@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup as bs
 import bs4
 import html5lib
 import json
-from multiprocessing import Pool
+import dask
+from dask.diagnostics import ProgressBar
 
 import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.request_utils as ru
@@ -68,8 +69,10 @@ class ObservationListFetch:
         self.progress_dict = pu.setup_progress_dict(items_total=total_urls, items_done=items_done)
 
         if len(urls) > 0:
-            pool = Pool(self.cpus)
-            pool.map(self.get_page_observation_ids, urls)
+
+            tasks = [dask.delayed(self.get_page_observation_ids)(url) for url in urls]
+            with ProgressBar():
+                dask.compute(*[tasks])
 
         else:
             pu.check_progress_dict(self.progress_dict, total_urls)
@@ -108,15 +111,6 @@ class ObservationListFetch:
         full_name = os.path.join(self.save_dir, file_name)
         with open(full_name, "w") as file_out:
             json.dump({"IDs": observation_ids}, file_out)
-
-        # print the progress of the scrape
-        # lists_scraped = 0
-        # for path in os.listdir(self.save_dir):
-        #     if os.path.isfile(os.path.join(self.save_dir, path)):
-        #         if str(path).find('.json') != -1:
-        #             lists_scraped += 1
-        #
-        # pu.check_progress_dict(self.progress_dict, lists_scraped)
 
         return observation_ids
 

@@ -20,7 +20,8 @@ setup(
         'requests',
         'bs4',
         'html5lib',
-        'pandas'
+        'pandas',
+        'dask[complete]'
     ],
     keywords='satellite satnogs',
     classifiers= [
