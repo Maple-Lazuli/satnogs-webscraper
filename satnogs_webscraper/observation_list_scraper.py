@@ -94,25 +94,29 @@ class ObservationListFetch:
         return ids
 
     def get_page_observation_ids(self, url):
+        try:
 
-        res = ru.get_request(url)
-        observation_list_page = bs(res.content, "html5lib")
-        observation_table = observation_list_page.find_all("tbody")[0]
-        observation_ids = []
-        for child in observation_table:
-            if child.name == "tr":
-                first_td = child.find_all("td")[0]
-                first_a = first_td.find_all("a")[0]
-                first_span = first_a.find_all("span")[0]
-                span_contents = first_span.contents[0].strip()
-                observation_ids.append(span_contents)
+            res = ru.get_request(url)
+            observation_list_page = bs(res.content, "html5lib")
+            observation_table = observation_list_page.find_all("tbody")[0]
+            observation_ids = []
+            for child in observation_table:
+                if child.name == "tr":
+                    first_td = child.find_all("td")[0]
+                    first_a = first_td.find_all("a")[0]
+                    first_span = first_a.find_all("span")[0]
+                    span_contents = first_span.contents[0].strip()
+                    observation_ids.append(span_contents)
 
-        file_name = f"{url.split('=')[-1]}.json"
-        full_name = os.path.join(self.save_dir, file_name)
-        with open(full_name, "w") as file_out:
-            json.dump({"IDs": observation_ids}, file_out)
+            file_name = f"{url.split('=')[-1]}.json"
+            full_name = os.path.join(self.save_dir, file_name)
+            with open(full_name, "w") as file_out:
+                json.dump({"IDs": observation_ids}, file_out)
 
-        return observation_ids
+            return observation_ids
+
+        except:
+            return []
 
 
 if __name__ == "__main__":
