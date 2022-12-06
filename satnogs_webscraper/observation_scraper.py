@@ -156,7 +156,7 @@ class ObservationScraper:
         :return: The shape of the cropped image and name of the waterfall written to disk as a bytes object.
         """
         res = ru.get_request(url)
-        waterfall_name = self.waterfall_path + file_name
+        waterfall_name = os.path.abspath(self.waterfall_path + file_name)
 
         with open(waterfall_name, 'wb') as out:
             out.write(res.content)

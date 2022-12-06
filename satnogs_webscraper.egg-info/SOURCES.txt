@@ -7,6 +7,7 @@ satnogs_webscraper/mainCLI.py
 satnogs_webscraper/observation_dataset.py
 satnogs_webscraper/observation_list_scraper.py
 satnogs_webscraper/observation_scraper.py
+satnogs_webscraper/progress_utils.py
 satnogs_webscraper/request_utils.py
 satnogs_webscraper/scraper.py
 satnogs_webscraper.egg-info/PKG-INFO

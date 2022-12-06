@@ -16,7 +16,8 @@ def get_request(url):
             return res
         else:
             sleep_amount = count ** 2
-            print(f"Timeout {sleep_amount} for {url}")
+            #print(f"Timeout {sleep_amount} for {url}")
+            #TODO add time-outs to the logger
             time.sleep(sleep_amount)
         count += 1
 

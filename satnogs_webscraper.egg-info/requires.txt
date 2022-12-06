@@ -1,4 +1,5 @@
 bs4
+dask[complete]
 html5lib
 numpy
 pandas
