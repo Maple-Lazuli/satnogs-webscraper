@@ -69,6 +69,7 @@ class ObservationScraper:
         if self.check_disk:
             file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
             if not os.path.isfile(file_name):  # make sure the observation has not already been downloaded
+
                 template = cnst.observation_template.copy()
                 r = ru.get_request(url)
 
