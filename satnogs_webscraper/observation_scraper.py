@@ -34,6 +34,8 @@ class ObservationScraper:
         self.observation_save_dir = cnst.directories['observations']
         self.log_file_loc = cnst.files["log_file"]
         self.waterfall_path = cnst.directories['waterfalls']
+        self.demod_path = cnst.directories['demods']
+
         self.prints = prints
         self.check_disk = check_disk
         cnst.verify_directories()
@@ -66,76 +68,112 @@ class ObservationScraper:
         :return: A dictionary of the scraped webpage
         """
         observation = url.split("/")[-2]
-        if self.check_disk:
-            file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
-            if not os.path.isfile(file_name):  # make sure the observation has not already been downloaded
-                template = cnst.observation_template.copy()
-                r = ru.get_request(url)
+        file_name = os.path.join(cnst.directories['observations'], f"{observation}.json")
 
-                observation_web_page = bs(r.content, "html5lib")
-                front_line_divs = observation_web_page.find_all("div", class_='front-line')
+        if (not self.check_disk) and (os.path.isfile(file_name)):
+            os.remove(file_name)
 
-                for div in front_line_divs:
-                    key, value = self.scrape_div(div)
-                    if key is not None:
-                        template[key] = value
+        if not os.path.isfile(file_name):  # make sure the observation has not already been downloaded
+            template = cnst.observation_template.copy()
+            r = ru.get_request(url)
 
-                waterfall_status = observation_web_page.find(id="waterfall-status-label")
-                if waterfall_status is not None:
-                    template['Waterfall_Status'] = " ".join(
-                        [piece.strip() for piece in waterfall_status.attrs['title'].split("\n")])
+            observation_web_page = bs(r.content, "html5lib")
+            table_rows = observation_web_page.find_all("tr")
 
-                status = observation_web_page.select("#rating-status > span")
-                if (status is not None) & (status[0] is not None):
-                    template['Status'] = status[0].text.strip()
-                    template['Status_Message'] = status[0].attrs['title'].strip()
-                template['Observation_id'] = observation
+            for tr in table_rows:
+                key, value = self.scrape_tr(tr)
+                if key is not None:
+                    template[key] = value
 
-                with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
-                    json.dump(template, obs_out)
+            waterfall_status = observation_web_page.find(id="waterfall-status-badge")
+            if waterfall_status is not None:
+                template['Waterfall_Status'] = waterfall_status.text.strip()
 
-        return {}
+            status = observation_web_page.select("#rating-status > span")
+            if (status is not None) & (status[0] is not None):
+                template['Status'] = status[0].text.strip()
+                template['Status_Message'] = status[0].attrs['title'].strip()
+            template['Observation_id'] = observation
 
-    def scrape_div(self, div):
+            template['demods'] = []
+
+            for data_a in observation_web_page.find_all("a", class_='data-link'):
+                template['demods'].append(self.fetch_demod(data_a))
+
+            with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
+                json.dump(template, obs_out)
+
+            return template
+
+        else:
+            with open(file_name, 'r') as file_in:
+                return json.load(file_in)
+
+    def scrape_tr(self, tr):
         """
-        Processes an HTML div container element and determines which part of the observation the
-        div contains data for.
-        :param div: HTML DiV
+        SATNOGS was updated to use tables instead of Divs. This function is very similar to scrape_div
+        with the exception
+        :param div: HTML Table Row (TR)
         :return: Key, Value pair
         """
-        contents = str(div)
 
-        # TODO - Scrape Up and Down times
+        first_child = tr.select_one('td:nth-child(1)')
+
+        if first_child is not None:
+            contents = str(first_child.contents)
+        else:
+            return None, None
 
         if contents.find("Satellite") != -1:
-            element = div.find("a")
-            return "Satellite", element.text.strip() if element is not None else None
+            second_element = tr.select_one('td:nth-child(2)')
+            second_element = second_element.find("a")
+            return "Satellite", second_element.text.strip()
 
         if contents.find("Station") != -1:
-            element = div.find("a")
-            return "Station", element.text.strip() if element is not None else None
+            second_element = tr.select_one('td:nth-child(2)')
+            second_element = second_element.find("a")
+            return "Station", second_element.text.strip()
 
         if contents.find("Transmitter") != -1:
-            element = div.find("span", class_='front-data')
-            return "Transmitter", element.text.strip() if element is not None else None
+            second_element = tr.select_one('td:nth-child(2)')
+            return "Transmitter", second_element.text.strip()
 
         if contents.find("Frequency") != -1:
-            element = div.find("span", class_='front-data')
-            return "Frequency", element.attrs['title'].strip() if element is not None else None
+            second_element = tr.select_one('td:nth-child(2)')
+            element = second_element.find('span')
+            return "Frequency", element.attrs['title'].strip()
 
         if contents.find("Mode") != -1:
-            return "Mode", [span.text.strip() for span in div.select(".front-data > span") if span is not None]
+            second_element = tr.select_one('td:nth-child(2)')
+            return "Mode", [span.text.strip() for span in second_element.select("span") if span is not None]
 
         if contents.find("Metadata") != -1:
-            element = div.find("pre")
-            return "Metadata", element.attrs['data-json'] if element is not None else None
+            second_element = tr.select_one('td:nth-child(2)')
+            element = second_element.find("pre")
+            return "Metadata", element.attrs['data-json']
+
+        if contents.find("Polar Plot") != -1:
+            element = tr.select_one("svg")
+            try:
+                polar_dict = {
+                    'tle1': element.attrs['data-tle1'],
+                    'tle2': element.attrs['data-tle2'],
+                    'timeframe-start': element.attrs['data-timeframe-start'],
+                    'timeframe-end': element.attrs['data-timeframe-end'],
+                    'groundstation-lat': element.attrs['data-groundstation-lat'],
+                    'groundstation-lon': element.attrs['data-groundstation-lon'],
+                    'groundstation-alt': element.attrs['data-groundstation-alt'],
+                }
+            except:
+                polar_dict = dict()
+            return "Polar_Plot", polar_dict
 
         if contents.find("Downloads") != -1:
             audio = None
             waterfall = None
             waterfall_hash_name = None
             waterfall_shape = None
-            for a in div.find_all("a", href=True):
+            for a in tr.find_all("a", href=True):
                 if str(a).find("Audio") != -1:
                     audio = a.attrs['href']
                 if str(a).find("Waterfall") != -1:
@@ -143,6 +181,7 @@ class ObservationScraper:
                     waterfall_hash_name = f'{hashlib.sha256(bytearray(waterfall, encoding="utf-8")).hexdigest()}.png'
                     if self.fetch_waterfalls:
                         waterfall_shape, waterfall_hash_name = self.fetch_waterfall(waterfall, waterfall_hash_name)
+
             return 'Downloads', {'audio': audio, "waterfall": waterfall, "waterfall_hash_name": waterfall_hash_name,
                                  "waterfall_shape": waterfall_shape}
         return None, None
@@ -164,14 +203,33 @@ class ObservationScraper:
 
         return cropped_shape, bytes_name
 
+    def fetch_demod(self, a):
+        """
+        """
+        url = a.attrs['href']
+        res = ru.get_request(url)
+
+        original_name = a.text.strip()
+        file_name = f'{hashlib.sha256(bytearray(original_name, encoding="utf-8")).hexdigest()}.bin'
+
+        demod_name = os.path.abspath(self.demod_path + file_name)
+
+        with open(demod_name, 'wb') as out:
+            out.write(res.content)
+
+        return {
+            'original_name': original_name,
+            'location': demod_name
+        }
+
 
 if __name__ == '__main__':
     # Demonstration of use
     print("Single Scrapes")
-    scraper = ObservationScraper()
+    scraper = ObservationScraper(check_disk=False)
     scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/5025420/')
-    scrape2 = scraper.scrape_observation('https://network.satnogs.org/observations/44444/')
+    scrape2 = scraper.scrape_observation('https://network.satnogs.org/observations/6881948/')
     print(f"{scrape1}")
     print(f"{scrape2}")
     print("Multiprocess Observations Pull")
-    scraper.multiprocess_scrape_observations([5025420, 44444])
+    scraper.multiprocess_scrape_observations([5025420, 6881948])

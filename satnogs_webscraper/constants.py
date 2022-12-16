@@ -16,6 +16,8 @@ observation_template = {
     'Metadata': None,
     'Downloads': None,
     'Waterfall_Status': None,
+    'Polar_Plot': None,
+    'demods':None
 }
 
 directories = {
@@ -24,6 +26,7 @@ directories = {
     "observation_pages": "./satnogs-data/observation_pages/",
     "observations": "./satnogs-data/observations/",
     "waterfalls": "./satnogs-data/observations/waterfalls/",
+    "demods": "./satnogs-data/observations/demods/",
     "logs": "./satnogs-data/logs/"
 }
 
