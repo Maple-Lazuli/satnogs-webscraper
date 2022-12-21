@@ -1,0 +1,17 @@
+README.md
+setup.py
+satnogs_webscraper/__init__.py
+satnogs_webscraper/constants.py
+satnogs_webscraper/image_utils.py
+satnogs_webscraper/mainCLI.py
+satnogs_webscraper/observation_dataset.py
+satnogs_webscraper/observation_list_scraper.py
+satnogs_webscraper/observation_scraper.py
+satnogs_webscraper/progress_utils.py
+satnogs_webscraper/request_utils.py
+satnogs_webscraper/scraper.py
+satnogs_webscraper.egg-info/PKG-INFO
+satnogs_webscraper.egg-info/SOURCES.txt
+satnogs_webscraper.egg-info/dependency_links.txt
+satnogs_webscraper.egg-info/requires.txt
+satnogs_webscraper.egg-info/top_level.txt
