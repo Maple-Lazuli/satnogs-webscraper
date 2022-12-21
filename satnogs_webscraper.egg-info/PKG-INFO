@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: satnogs-webscraper
-Version: 1.1.1
+Version: 1.3.3
 Summary: Scrape SATNOGS data into a pandas dataframe
 Home-page: UNKNOWN
 Author: Ada L

@@ -71,7 +71,7 @@ class Scraper:
         if not self.failed:
             url.append('failed=0')
 
-        url.append(self.norad)
+        url.append(f'norad={self.norad}')
         url.append(f'observer={self.observer}')
 
         url.append(f'station={self.station_id}')
@@ -102,7 +102,7 @@ class Scraper:
         complete_url = complete_url.replace("/?&", "/?")
         return complete_url
 
-    def scrape(self):
+    def scrape(self, resume=False):
         url = self.generate_query_string()
         json_name = f"{self.save_name}.json"
         cnst.verify_directories()
@@ -117,7 +117,7 @@ class Scraper:
         print("Scraping List Pages...")
         obs_list_scraper = ols.ObservationListFetch(url=url, save_name=save_name,
                                                     save_dir=obs_list_temp_dir,
-                                                    resume=True,
+                                                    resume=resume,
                                                     cpus=self.cpus,
                                                     page_limit=self.list_page_limit)
         ids = obs_list_scraper.fetch_ids()
