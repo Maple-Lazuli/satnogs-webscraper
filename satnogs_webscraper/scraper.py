@@ -98,6 +98,15 @@ class Scraper:
         url.append(f'end={self.end}')
         url.append(f'transmitter_mode=')
 
+        if self.artifacts != Artifacts.IGNORE:
+            if self.artifacts == Artifacts.NON_RATED:
+                url.append('rated=rwu')
+            elif self.artifacts == Artifacts.WITH_SIGNAL:
+                url.append('rated=rw1')
+
+            elif self.artifacts == Artifacts.WITHOUT_SIGNAL:
+                url.append('rated=rw0')
+
         complete_url = "&".join(url)
         complete_url = complete_url.replace("/?&", "/?")
         return complete_url

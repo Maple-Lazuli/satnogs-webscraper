@@ -1,6 +1,6 @@
 from setuptools import setup
 
-VERSION = '1.3.4'
+VERSION = '1.3.5'
 DESCRIPTION = 'Scrape SATNOGS data into a pandas dataframe'
 LONG_DESCRIPTION = 'A webscraper to pull multiple satnogs observations into a single pandas dataframe'
 
