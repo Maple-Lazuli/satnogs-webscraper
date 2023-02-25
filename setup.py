@@ -21,7 +21,8 @@ setup(
         'bs4',
         'html5lib',
         'pandas',
-        'dask[complete]'
+        'dask[complete]',
+        'pytest'
     ],
     keywords='satellite satnogs',
     classifiers= [

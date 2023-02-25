@@ -20,21 +20,19 @@ observation_template = {
     'demods':None
 }
 
-directories = {
-    "data": "./satnogs-data",
-    "satellites": "./satnogs-data/satellites/",
-    "observation_pages": "./satnogs-data/observation_pages/",
-    "observations": "./satnogs-data/observations/",
-    "waterfalls": "./satnogs-data/observations/waterfalls/",
-    "demods": "./satnogs-data/observations/demods/",
-    "logs": "./satnogs-data/logs/"
-}
+directories = dict()
+directories['data'] = "./satnogs-data"
+directories['satellites'] = directories['data'] + "/satellites/"
+directories['observation_pages'] = directories['data'] + "/observation_pages/"
+directories['observations'] = directories['data'] + "/observations/"
+directories['waterfalls'] = directories['observations'] + "/waterfalls/"
+directories['demods'] = directories['observations'] + "/demods/"
+directories['logs'] = directories['data'] + "/logs/"
 
-files = {
-    "satellites_json": "./satnogs-data/satellites/satellites.json",
-    "observation_json": "./satnogs-data/observations/observations.json",
-    "log_file": "./satnogs-data/logs/log.txt"
-}
+files = dict()
+files['satellites_json'] = directories['satellites'] + "satellites.json"
+files['observation_json'] = directories['observations'] + "observations.json"
+files['log_file'] = directories['logs'] + "log.txt"
 
 
 def verify_directories():

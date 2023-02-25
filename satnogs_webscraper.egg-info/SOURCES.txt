@@ -1,4 +1,7 @@
+LICENSE.rst
 README.md
+README.rst
+setup.cfg
 setup.py
 satnogs_webscraper/__init__.py
 satnogs_webscraper/constants.py

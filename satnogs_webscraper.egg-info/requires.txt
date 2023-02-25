@@ -4,4 +4,5 @@ html5lib
 numpy
 pandas
 pillow
+pytest
 requests

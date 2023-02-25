@@ -50,18 +50,26 @@ def find_right_bound(im):
             return x
 
 
-def crop_and_save_psd(input_image, delete_original=True, greyscale=True):
-    im_source = Image.open(input_image)
-    if greyscale:
-        im_source = im_source.convert('L')
-    else:
-        im_source = im_source.convert('RGB')
+def crop_and_save_psd(input_image, delete_original=True, greyscale=True, resize=True, resize_dimen=(623, 1542)):
+    im_source_grey = Image.open(input_image).convert('L')
+
     # Find the boundaries of the center most PSD and crop the image.
-    left_bound = find_left_bound(im_source)
-    right_bound = find_right_bound(im_source)
-    upper_bound = find_upper_bound(im_source)
-    bottom_bound = find_bottom_bound(im_source)
+    left_bound = find_left_bound(im_source_grey)
+    right_bound = find_right_bound(im_source_grey)
+    upper_bound = find_upper_bound(im_source_grey)
+    bottom_bound = find_bottom_bound(im_source_grey)
+
+    if greyscale:
+        im_source = Image.open(input_image).convert('L')
+    else:
+        im_source = Image.open(input_image).convert('RGB')
+
     im_cropped = im_source.crop([left_bound, upper_bound, right_bound, bottom_bound])
+
+    if resize:
+        size = im_cropped.size
+        if size[0] != resize_dimen[0] or size[1] != resize_dimen[1]:
+            im_cropped = im_cropped.resize(resize_dimen, Image.Resampling.LANCZOS)
 
     # Convert to greyscale and save as unit8 bytes to disk, using the original file name, minus the file extension
     numpy_im = np.array(im_cropped)
