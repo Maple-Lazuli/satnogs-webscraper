@@ -30,3 +30,5 @@ def write_log(url, code, comment=""):
             "status": code,
             "comment": comment
         }, log_out)
+
+    return os.path.join(cnst.directories['logs'], log_name)

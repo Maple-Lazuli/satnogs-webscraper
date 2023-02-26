@@ -12,7 +12,6 @@ import html5lib
 import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.image_utils as iu
 import satnogs_webscraper.request_utils as ru
-
 import satnogs_webscraper.progress_utils as pu
 
 

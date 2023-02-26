@@ -32,7 +32,7 @@ directories['logs'] = directories['data'] + "/logs/"
 files = dict()
 files['satellites_json'] = directories['satellites'] + "satellites.json"
 files['observation_json'] = directories['observations'] + "observations.json"
-files['log_file'] = directories['logs'] + "log.txt"
+files['log_file'] = directories['logs'] + "log.json"
 
 
 def verify_directories():
