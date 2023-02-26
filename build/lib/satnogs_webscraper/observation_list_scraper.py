@@ -17,7 +17,8 @@ import satnogs_webscraper.progress_utils as pu
 
 
 class ObservationListFetch:
-    def __init__(self, url, save_name, save_dir, page_limit=0, resume=True, cpus=None):
+    def __init__(self, url, save_name, save_dir=cnst.directories["observation_pages"], page_limit=0, resume=True,
+                 cpus=None):
         self.progress_dict = None
         self.url = url
         self.observation_list = []

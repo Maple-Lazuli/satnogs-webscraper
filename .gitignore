@@ -4,4 +4,4 @@ data/*
 notebooks/*
 src/__pycache__/*
 tests/__pycache__/*
-
+*.json
