@@ -49,7 +49,7 @@ class ObservationScraper:
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
 
-        self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
+        #self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
 
         # pool = Pool(self.cpus)
         # self.observations_list = pool.map(self.scrape_observation, urls)
