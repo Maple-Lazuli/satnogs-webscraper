@@ -10,6 +10,8 @@ import requests
 
 @pytest.fixture()
 def prep_directories():
+    if os.path.exists(cnst.directories['data']):
+        shutil.rmtree(cnst.directories['data'])
     cnst.verify_directories()
     yield None
     shutil.rmtree(cnst.directories['data'])

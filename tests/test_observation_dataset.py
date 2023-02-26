@@ -8,6 +8,8 @@ import satnogs_webscraper.constants as cnst
 
 @pytest.fixture()
 def get_obs_ids():
+    if os.path.exists(cnst.directories['data']):
+        shutil.rmtree(cnst.directories['data'])
     obs_list = ["5738648", "5740805", "5740806"]
     cnst.verify_directories()
 
