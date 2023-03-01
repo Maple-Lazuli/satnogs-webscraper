@@ -1,6 +1,7 @@
 import os
 
-from PIL import Image
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from collections import Counter
 import numpy as np
 
