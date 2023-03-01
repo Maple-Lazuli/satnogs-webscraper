@@ -96,8 +96,9 @@ class ObservationListFetch:
 
     def get_page_observation_ids(self, url):
         try:
-
             res = ru.get_request(url)
+            if res is None:
+                return
             observation_list_page = bs(res.content, "html5lib")
             observation_table = observation_list_page.find_all("tbody")[0]
             observation_ids = []

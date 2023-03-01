@@ -10,14 +10,21 @@ import satnogs_webscraper.constants as cnst
 def get_request(url):
     count = 1
     while True:
-        res = requests.get(url)
-        write_log(url, res.status_code)
-        if res.status_code == 200:
-            return res
-        else:
+        try:
+            res = requests.get(url)
+            write_log(url, res.status_code)
+            if res.status_code == 200:
+                return res
+            else:
+                sleep_amount = count ** 2
+                write_log(url,res.status_code, f"Timeout Count: {count}")
+                time.sleep(sleep_amount)
+        except Exception as e:
             sleep_amount = count ** 2
-            write_log(url,res.status_code, f"Timeout Count: {count}")
+            write_log(url, -1, f"Exception:{e}")
             time.sleep(sleep_amount)
+            if count == 2:
+                return None
         count += 1
 
 

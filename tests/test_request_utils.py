@@ -51,3 +51,25 @@ def test_get_request_logging(prep_directories):
     assert parsed_logs['url'] == url
     assert parsed_logs['status'] == res.status_code
 
+
+def test_get_request_exception_handling(prep_directories):
+    url = 'https://127.0.0.1/'
+
+    assert len(os.listdir(cnst.directories['logs'])) == 0
+
+    res = ru.get_request(url)
+
+    assert len(os.listdir(cnst.directories['logs'])) == 10
+
+    log_file = os.listdir(cnst.directories['logs'])[0]
+    log_file = os.path.join(cnst.directories['logs'], log_file)
+
+    with open(log_file) as file_in:
+        parsed_logs = json.load(file_in)
+
+    assert parsed_logs['url'] == url
+    assert parsed_logs['status'] == -1
+    assert parsed_logs['comment'].find("Exception") != -1
+
+
+

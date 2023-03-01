@@ -75,7 +75,9 @@ class ObservationScraper:
         if not os.path.isfile(file_name):  # make sure the observation has not already been downloaded
             template = cnst.observation_template.copy()
             r = ru.get_request(url)
-
+            if r is None:
+                # TODO: Make a null template for easy filtering after scraping
+                return template
             observation_web_page = bs(r.content, "html5lib")
             table_rows = observation_web_page.find_all("tr")
 
