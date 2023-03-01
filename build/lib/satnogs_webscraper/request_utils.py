@@ -23,7 +23,7 @@ def get_request(url):
             sleep_amount = count ** 2
             write_log(url, -1, f"Exception:{e}")
             time.sleep(sleep_amount)
-            if count == 2:
+            if count == 10:
                 return None
         count += 1
 
