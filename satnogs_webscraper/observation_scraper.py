@@ -98,9 +98,15 @@ class ObservationScraper:
 
             template['demods'] = []
 
-            for data_a in observation_web_page.find_all("a", class_='data-link'):
-                template['demods'].append(self.fetch_demod(data_a))
+            # multiprocess data_fetch.
+            # for data_a in observation_web_page.find_all("a", class_='data-link'):
+            #     template['demods'].append(self.fetch_demod(data_a))
 
+            demods = []
+            for data_a in observation_web_page.find_all("a", class_='data-link'):
+                demods.append(dask.delayed(self.fetch_demod)(data_a))
+
+            template['demods'] = dask.compute(*[demods])[0]
             with open(os.path.join(cnst.directories['observations'], f"{observation}.json"), 'w') as obs_out:
                 json.dump(template, obs_out)
 

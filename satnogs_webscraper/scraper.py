@@ -6,7 +6,7 @@ import os
 import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.observation_scraper as obs
 import satnogs_webscraper.observation_list_scraper as ols
-from satnogs_webscraper.observation_dataset import get_dataset
+from satnogs_webscraper.observation_dataset import get_datasets
 
 
 class Results(Enum):
