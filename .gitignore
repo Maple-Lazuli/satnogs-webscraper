@@ -11,3 +11,4 @@ build/*
 dist/*
 satnogs-data/*
 satnogs_webscraper.egg-info/*
+satnogs_webscraper/__pycache__/*

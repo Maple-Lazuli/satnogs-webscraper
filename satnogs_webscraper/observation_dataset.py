@@ -33,7 +33,7 @@ def get_datasets(observation_list):
         file_name = os.path.join(cnst.directories['observations'], f'{observation}.json')
         with open(file_name, "r") as file_in:
             observation_dictionary = json.load(file_in)
-            observation_dictionary['demod_key'] = common_key
+            observation_dictionary['demod_key'] = common_key if len(observation_dictionary['demods']) > 0 else -1
 
         for demod in observation_dictionary['demods']:
             with open(demod['location'], 'rb') as file_in:
@@ -72,10 +72,13 @@ def get_datasets(observation_list):
         demod_dictionary[key]['dataframe'] = df
         del demod_dictionary[key]['demods']
 
-    demod_df = pd.DataFrame([demod_dictionary[key] for key in demod_dictionary.keys()])
-    demod_df.set_index(['demod_length'], inplace=True)
-    demod_df.sort_values(['num_demods'], ascending=False, inplace=True)
-    return meta_df, demod_df
+    if len(demod_dictionary.keys()) != 0:
+        demod_df = pd.DataFrame([demod_dictionary[key] for key in demod_dictionary.keys()])
+        demod_df.set_index(['demod_length'], inplace=True)
+        demod_df.sort_values(['num_demods'], ascending=False, inplace=True)
+        return meta_df, demod_df
+    else:
+        return meta_df, None
 
 
 def get_demod_time(demod_url):
