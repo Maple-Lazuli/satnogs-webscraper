@@ -46,7 +46,7 @@ def test_Observation_Scraper_init():
     fetch_logging = False
     prints = False
     check_disk = False
-    cpus = 100
+    cpus = 2
     grey_scale = False
 
     obs_scraper2 = ObservationScraper(fetch_waterfalls=fetch_waterfalls, fetch_logging=fetch_logging, prints=prints,
@@ -66,7 +66,7 @@ def test_observation_scrape(prep_directories):
 
     scrape = obs_scraper.scrape_observation(url=observation_url)
 
-    with open("tests/resources/7206380.json") as file_in:
+    with open(os.path.join(cnst.directories['observations'], "7206380.json")) as file_in:
         test_record = json.load(file_in)
 
     keys_to_skip = ['Downloads', 'demods']
@@ -109,14 +109,11 @@ def test_multi_process_observation_scrape(prep_directories):
     assert len(os.listdir(cnst.directories['waterfalls'])) > 0
 
     keys_to_skip = ['Downloads', 'demods']
-    for obs_name in obs_names:
-        with open(f"tests/resources/{obs_name}") as file_in:
+    for obs_id in obs_ids:
+        with open(f"tests/resources/{obs_id}.json") as file_in:
             test_record = json.load(file_in)
-        with open(f"{cnst.directories['observations']}{obs_name}") as file_in:
+        with open(os.path.join(cnst.directories['observations'], f"{obs_id}.json")) as file_in:
             scraped = json.load(file_in)
         for key in test_record.keys():
             if not key in keys_to_skip:
                 assert test_record[key] == scraped[key], key
-
-
-

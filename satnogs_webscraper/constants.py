@@ -36,6 +36,7 @@ files['log_file'] = directories['logs'] + "log.json"
 
 
 def verify_directories():
+    print(f"Checking directory location at: {os.path.abspath(directories['data'])}")
     for key in directories.keys():
         if not os.path.exists(directories[key]):
             os.makedirs(directories[key])

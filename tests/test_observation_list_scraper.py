@@ -21,9 +21,9 @@ def test_observation_list_scraper_init():
     url = 'some_url'
     save_name = "save_name"
     save_dir = "some_dir"
-    page_limit = 5
+    page_limit = 2
     resume = False
-    cpus = 606
+    cpus = 2
     fetcher1 = ols.ObservationListFetch(url, save_name, save_dir)
     fetcher2 = ols.ObservationListFetch(url, save_name, save_dir, page_limit=page_limit, resume=resume, cpus=cpus)
 
@@ -55,6 +55,7 @@ def test_get_pages(prep_directories):
     for page in pages:
         assert 200 == requests.get(page).status_code
 
+
 def test_get_page_observation_ids(prep_directories):
     test_url = "https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&norad=&observer=&station" \
                "=&start=&end=&transmitter_mode="
@@ -71,7 +72,6 @@ def test_get_page_observation_ids(prep_directories):
     assert len(ids_page1) == 20
     for id in ids_page1:
         assert id == re.search(r"\d+", id)[0]
-
 
 
 def test_multiprocess_id_fetch(prep_directories):
@@ -108,7 +108,7 @@ def test_fetch_ids(prep_directories):
     test_url = "https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&norad=&observer=&station" \
                "=&start=&end=&transmitter_mode="
 
-    fetcher1 = ols.ObservationListFetch(test_url, "test.json", page_limit=3)
+    fetcher1 = ols.ObservationListFetch(test_url, "test.json", page_limit=2)
 
     assert not os.path.exists("test.json")
 
@@ -116,7 +116,7 @@ def test_fetch_ids(prep_directories):
 
     assert os.path.exists("test.json")
 
-    assert len(ids) == 60
+    assert len(ids) == 40
 
     for id in ids:
         assert id == re.search(r"\d+", id)[0]

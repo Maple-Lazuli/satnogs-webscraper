@@ -5,3 +5,9 @@ notebooks/*
 src/__pycache__/*
 tests/__pycache__/*
 *.json
+*.csv
+.pytest_cache/*
+build/*
+dist/*
+satnogs-data/*
+satnogs_webscraper.egg-info/*

@@ -7,7 +7,7 @@ import time
 import satnogs_webscraper.constants as cnst
 
 
-def get_request(url):
+def get_request(url, max_count=None):
     count = 1
     while True:
         try:
@@ -17,7 +17,7 @@ def get_request(url):
                 return res
             else:
                 sleep_amount = count ** 2
-                write_log(url,res.status_code, f"Timeout Count: {count}")
+                write_log(url, res.status_code, f"Timeout Count: {count}")
                 time.sleep(sleep_amount)
         except Exception as e:
             sleep_amount = count ** 2
@@ -26,6 +26,9 @@ def get_request(url):
             if count == 10:
                 return None
         count += 1
+        if max_count is not None:
+            if count >= max_count:
+                return None
 
 
 def write_log(url, code, comment=""):

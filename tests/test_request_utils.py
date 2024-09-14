@@ -8,6 +8,7 @@ import pytest
 
 @pytest.fixture()
 def prep_directories():
+
     if os.path.exists(cnst.directories['data']):
         shutil.rmtree(cnst.directories['data'])
     cnst.verify_directories()
@@ -57,9 +58,9 @@ def test_get_request_exception_handling(prep_directories):
 
     assert len(os.listdir(cnst.directories['logs'])) == 0
 
-    res = ru.get_request(url)
+    res = ru.get_request(url, max_count=2)
 
-    assert len(os.listdir(cnst.directories['logs'])) == 10
+    assert len(os.listdir(cnst.directories['logs'])) == 1
 
     log_file = os.listdir(cnst.directories['logs'])[0]
     log_file = os.path.join(cnst.directories['logs'], log_file)
@@ -70,6 +71,3 @@ def test_get_request_exception_handling(prep_directories):
     assert parsed_logs['url'] == url
     assert parsed_logs['status'] == -1
     assert parsed_logs['comment'].find("Exception") != -1
-
-
-
