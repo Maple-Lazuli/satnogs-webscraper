@@ -133,7 +133,7 @@ class Scraper:
         print("Scraping Observation Pages...")
         obs_scraper = obs.ObservationScraper(cpus=self.cpus, grey_scale=self.grey_scale)
         obs_scraper.multiprocess_scrape_observations(ids)
-        return get_dataset(ids)
+        return get_datasets(ids)
 
 
 if __name__ == '__main__':
