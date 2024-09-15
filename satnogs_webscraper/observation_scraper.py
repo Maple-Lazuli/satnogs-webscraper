@@ -90,6 +90,10 @@ class ObservationScraper:
             if waterfall_status is not None:
                 template['Waterfall_Status'] = waterfall_status.text.strip()
 
+            meta_data_element = observation_web_page.find('pre', id='json-metadata')
+            meta_data_json = meta_data_element['data-json']
+            template['Metadata'] = json.loads(meta_data_json)
+
             status = observation_web_page.select("#rating-status > span")
             if (status is not None) & (status[0] is not None):
                 template['Status'] = status[0].text.strip()
@@ -143,12 +147,14 @@ class ObservationScraper:
             except:
                 return "Station", ""
 
-        if contents.find("Transmitter") != -1:
+        if contents.find("Timeframe") != -1:
             try:
                 second_element = tr.select_one('td:nth-child(2)')
-                return "Transmitter", second_element.text.strip()
+                dates = second_element.find_all('span', class_='datetime-date')
+                times = second_element.find_all('span', class_='datetime-time')
+                return "Timeframe", [f"{date.text} {time.text}" for date, time in zip(dates, times)]
             except:
-                return "Transmitter", ""
+                return "Timeframe", []
 
         if contents.find("Frequency") != -1:
             try:
@@ -161,17 +167,9 @@ class ObservationScraper:
         if contents.find("Mode") != -1:
             try:
                 second_element = tr.select_one('td:nth-child(2)')
-                return "Mode", [span.text.strip() for span in second_element.select("span") if span is not None]
+                return "Mode", " ".join([span.text.strip() for span in second_element.select("span") if span is not None])
             except:
                 return "Mode", ""
-
-        if contents.find("Metadata") != -1:
-            try:
-                second_element = tr.select_one('td:nth-child(2)')
-                element = second_element.find("pre")
-                return "Metadata", element.attrs['data-json']
-            except:
-                return "Metadata", ""
 
         if contents.find("Polar Plot") != -1:
             element = tr.select_one("svg")
