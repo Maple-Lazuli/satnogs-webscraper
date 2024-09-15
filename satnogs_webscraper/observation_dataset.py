@@ -69,8 +69,8 @@ def get_datasets(observation_list):
 
     for key in demod_dictionary.keys():
         df = pd.DataFrame(demod_dictionary[key]['demods'])
-        df.set_index(['timestamp'])
-        df.sort_index()
+        df.set_index(['timestamp'], inplace=True)
+        df.sort_index(inplace=True)
         demod_dictionary[key]['dataframe'] = df
         del demod_dictionary[key]['demods']
 
@@ -90,7 +90,7 @@ def get_demod_time(demod_url):
     time_parsed = datetime.datetime.strptime(f"{ts_date}T{ts_time}", "%Y-%m-%dT%H-%M-%S")
     if len(ts[1].split("_")) > 1:
         milliseconds = find_largest_number(ts[1].split("_")[1])
-        time_parsed = datetime.timedelta(milliseconds=milliseconds)
+        time_parsed = time_parsed+datetime.timedelta(milliseconds=milliseconds)
     return time_parsed
 
 
