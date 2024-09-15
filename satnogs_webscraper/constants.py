@@ -6,18 +6,18 @@ web_address = "https://network.satnogs.org/"
 
 observation_template = {
     'Observation_id': None,
+    'Timeframe': None,
     'Satellite': None,
     'Station': None,
     'Status': None,
     'Status_Message': None,
-    'Transmitter': None,
     'Frequency': None,
     'Mode': None,
     'Metadata': None,
     'Downloads': None,
     'Waterfall_Status': None,
     'Polar_Plot': None,
-    'demods':None
+    'demods': None
 }
 
 directories = dict()
