@@ -47,6 +47,8 @@ def get_datasets(observation_list):
         common_key += 1
 
     meta_df = pd.DataFrame(observations)
+    meta_df.set_index(['Observation_id'], inplace=True)
+    meta_df.sort_index(inplace=True)
 
     for demod in demods:
         length_key = len(demod['bytes'])
