@@ -2,6 +2,7 @@ import os.path
 import shutil
 import satnogs_webscraper.constants as cnst
 from satnogs_webscraper.scraper import Scraper
+import pandas as pd
 import pytest
 
 
@@ -51,8 +52,22 @@ def test_scraper_scrape_contents(prep_directories):
     assert meta_df.shape[1] == 12
     for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status', 'Status_Message',
                             'Frequency', 'Mode', 'Metadata', 'Downloads', 'Waterfall_Status',
-                            'Polar_Plot', 'demod_key']:
+                            'Polar_Plot', 'meta_key']:
         assert expected_column in meta_df.columns
+
+    # Testing right join
+
+    df_merged = pd.merge(meta_df, demod_272, on='meta_key', how='right')
+    assert df_merged.shape[0] == 20
+    assert df_merged.shape[1] == 284
+
+    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status', 'Status_Message',
+                            'Frequency', 'Mode', 'Metadata', 'Downloads', 'Waterfall_Status',
+                            'Polar_Plot', 'meta_key']:
+        assert expected_column in df_merged.columns
+
+    for i in range(0, 272):
+        assert i in df_merged.columns
 
     for name in meta_df['Satellite']:
         assert name.find("ARMADILLO") != -1
@@ -65,5 +80,5 @@ def test_scraper_scrape_contents(prep_directories):
     scraper2 = Scraper(good=False, bad=True, list_page_limit=page_limit+1)
     meta_df, demod_df = scraper2.scrape()
     assert len(meta_df['Satellite'].unique()) != 1
-    assert sum(meta_df['Status'] == 'Bad') == page_limit * 20
+    assert sum(meta_df['Status'] == 'Bad') == (page_limit+1) * 20
     assert sum(meta_df['Status'] == 'Good') == 0

@@ -33,7 +33,7 @@ def get_datasets(observation_list):
         file_name = os.path.join(cnst.directories['observations'], f'{observation}.json')
         with open(file_name, "r") as file_in:
             observation_dictionary = json.load(file_in)
-            observation_dictionary['demod_key'] = common_key if len(observation_dictionary['demods']) > 0 else -1
+            observation_dictionary['meta_key'] = common_key if len(observation_dictionary['demods']) > 0 else -1
 
         for demod in observation_dictionary['demods']:
             with open(demod['location'], 'rb') as file_in:
