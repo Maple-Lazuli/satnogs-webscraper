@@ -17,7 +17,7 @@ import satnogs_webscraper.progress_utils as pu
 
 class ObservationScraper:
     def __init__(self, fetch_waterfalls=True, fetch_logging=True, prints=True, check_disk=True, cpus=1,
-                 grey_scale=True):
+                 grey_scale=True, delete_original_waterfall=True):
         """
         Scrapes the webpages for satellite observations. Waterfall fetches are set to false by default due to the
         very large file sizes.
@@ -34,7 +34,7 @@ class ObservationScraper:
         self.log_file_loc = cnst.files["log_file"]
         self.waterfall_path = cnst.directories['waterfalls']
         self.demod_path = cnst.directories['demods']
-
+        self.delete_original_waterfall = delete_original_waterfall
         self.prints = prints
         self.check_disk = check_disk
         cnst.verify_directories()
@@ -49,7 +49,7 @@ class ObservationScraper:
         """
         urls = [f'{cnst.web_address}{cnst.observations}{observation}/' for observation in observations_list]
 
-        #self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
+        # self.progress_dict = pu.setup_progress_dict(items_total=len(urls), items_done=0)
 
         # pool = Pool(self.cpus)
         # self.observations_list = pool.map(self.scrape_observation, urls)
@@ -167,7 +167,8 @@ class ObservationScraper:
         if contents.find("Mode") != -1:
             try:
                 second_element = tr.select_one('td:nth-child(2)')
-                return "Mode", " ".join([span.text.strip() for span in second_element.select("span") if span is not None])
+                return "Mode", " ".join(
+                    [span.text.strip() for span in second_element.select("span") if span is not None])
             except:
                 return "Mode", ""
 
@@ -213,12 +214,13 @@ class ObservationScraper:
         :return: The shape of the cropped image and name of the waterfall written to disk as a bytes object.
         """
         res = ru.get_request(url)
-        waterfall_name = os.path.abspath(self.waterfall_path + file_name)
+        waterfall_name = os.path.abspath(self.waterfall_path + file_name) +"_original"
 
         with open(waterfall_name, 'wb') as out:
             out.write(res.content)
 
-        cropped_shape, bytes_name = iu.crop_and_save_psd(waterfall_name, greyscale=self.grey_scale)
+        cropped_shape, bytes_name = iu.crop_and_save_psd(waterfall_name, greyscale=self.grey_scale,
+                                                         delete_original=self.delete_original_waterfall)
 
         return cropped_shape, bytes_name
 

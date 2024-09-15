@@ -73,12 +73,18 @@ def crop_and_save_psd(input_image, delete_original=True, greyscale=True, resize=
             im_cropped = im_cropped.resize(resize_dimen, Image.Resampling.LANCZOS)
 
     # Convert to greyscale and save as unit8 bytes to disk, using the original file name, minus the file extension
-    numpy_im = np.array(im_cropped)
 
-    # store the shape and write to a file
-    shape = numpy_im.shape
-    new_file_name = input_image[:-4]
-    numpy_im.tofile(new_file_name)
+    new_file_name = "".join(input_image.split(".")[0:-1])
+    new_file_name += ".bin" if greyscale else ".png"
+
+    if greyscale:
+        numpy_im = np.array(im_cropped)
+        shape = numpy_im.shape
+        numpy_im.tofile(new_file_name)
+    else:
+        numpy_im = np.array(im_cropped)
+        shape = numpy_im.shape
+        im_cropped.save(new_file_name)
 
     # remove the original, larger image
     if delete_original:
