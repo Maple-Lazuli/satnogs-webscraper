@@ -3,26 +3,30 @@ import shutil
 from PIL import Image
 
 import satnogs_webscraper.image_utils as iu
+from satnogs_webscraper.observation_scraper import ObservationScraper
+import satnogs_webscraper.constants as cnst
 import pytest
 
 
 @pytest.fixture()
 def get_image_greyscale():
-    original_name = "./tests/resources/waterfall_7206380_2023-02-25T21-08-54.png"
-    copy_name = "./tests/resources/base_copy.png"
-    shutil.copy2(original_name, copy_name)
-    yield Image.open(copy_name).convert('L')
-    os.remove(copy_name)
+    cnst.verify_directories()
+    scraper = ObservationScraper(grey_scale=False, delete_original_waterfall=False)
+    scrape = scraper.scrape_observation('https://network.satnogs.org/observations/5025420/')
+    original_name = scrape['Downloads']['waterfall_hash_name']+"_original"
+    yield Image.open(original_name).convert('L')
+    shutil.rmtree(cnst.directories['data'])
+
 
 
 @pytest.fixture()
 def get_image():
-    original_name = "./tests/resources/waterfall_7206380_2023-02-25T21-08-54.png"
-    copy_name = "./tests/resources/base_copy.png"
-    shutil.copy2(original_name, copy_name)
-    yield copy_name
-    if os.path.exists(copy_name):
-        os.remove(copy_name)
+    cnst.verify_directories()
+    scraper = ObservationScraper(grey_scale=False, delete_original_waterfall=False)
+    scrape = scraper.scrape_observation('https://network.satnogs.org/observations/5025420/')
+    original_name = scrape['Downloads']['waterfall_hash_name']+"_original"
+    yield original_name
+    shutil.rmtree(cnst.directories['data'])
 
 
 def test_find_left_bound(get_image_greyscale):
@@ -63,4 +67,3 @@ def test_crop_and_save_resize(get_image):
     size, _ = iu.crop_and_save_psd(get_image, delete_original=False, resize=False)
     assert size[0] == original_dimen[1], "Verify no resize"
     assert size[1] == original_dimen[0], "Verify no resize"
-

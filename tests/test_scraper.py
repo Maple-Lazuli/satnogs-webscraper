@@ -27,20 +27,6 @@ def test_scraper_init(prep_directories):
     assert scraper2.generate_query_string() == expected_string2
 
 
-# def test_scraper_scrape_size(prep_directories):
-#     page_limit = 1
-#     scraper = Scraper(norad="44352", list_page_limit=page_limit)
-#     df = scraper.scrape()
-#     assert df.shape[0] == page_limit * 20
-#     assert df.shape[1] == 13
-#
-#     page_limit = 2
-#     scraper2 = Scraper(norad="44352", list_page_limit=page_limit)
-#     df2 = scraper2.scrape()
-#     assert df2.shape[0] == page_limit * 20
-#     assert df2.shape[1] == 13
-
-
 def test_scraper_scrape_contents(prep_directories):
     page_limit = 1
     scraper = Scraper(norad="44352", list_page_limit=page_limit)
