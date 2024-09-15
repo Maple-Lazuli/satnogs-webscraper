@@ -139,7 +139,7 @@ class ObservationScraper:
             except:
                 return "Satellite", ""
 
-        if contents.find("Station") != -1:
+        if (contents.find("Station") != -1) and (contents.find("Owner") == -1):
             try:
                 second_element = tr.select_one('td:nth-child(2)')
                 second_element = second_element.find("a")
