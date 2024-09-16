@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import re
 import satnogs_webscraper.constants as cnst
+import warnings
 
 
 def save_dataset(observation_list, save_name):
@@ -22,7 +23,7 @@ def get_dataset(observation_list):
     return df
 
 
-def get_datasets(observation_list):
+def get_datasets(observation_list, kaitai_interface=None):
     common_key = 0
 
     observations = []
@@ -37,12 +38,21 @@ def get_datasets(observation_list):
 
         for demod in observation_dictionary['demods']:
             with open(demod['location'], 'rb') as file_in:
+                demod_data = file_in.read()
                 demods.append({
                     'timestamp': get_demod_time(demod['original_name']),
-                    'bytes': file_in.read(),
+                    'bytes': demod_data,
                     'meta_key': common_key
                 })
-        del observation_dictionary['demods']
+                if kaitai_interface is not None:
+                    from kaitaistruct import KaitaiStream, BytesIO
+                    if 'kaitai' not in observation_dictionary.keys():
+                        observation_dictionary['kaitai'] = []
+                    try:
+                        observation_dictionary['kaitai'].append(kaitai_interface(KaitaiStream(BytesIO(demod_data))))
+                    except Exception as e:
+                        warnings.warn(f"Error parsing demod. Error:{e}")
+                        pass
         observations.append(observation_dictionary)
         common_key += 1
 
@@ -84,13 +94,18 @@ def get_datasets(observation_list):
 
 
 def get_demod_time(demod_url):
-    ts = demod_url.split("/")[-1].split("T")
-    ts_date = ts[0].split("_")[-1]
-    ts_time = ts[1].split("_")[0]
-    time_parsed = datetime.datetime.strptime(f"{ts_date}T{ts_time}", "%Y-%m-%dT%H-%M-%S")
-    if len(ts[1].split("_")) > 1:
-        milliseconds = find_largest_number(ts[1].split("_")[1])
-        time_parsed = time_parsed+datetime.timedelta(milliseconds=milliseconds)
+
+    pattern = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}(?:_\d+)?"
+    match = re.search(pattern, demod_url)
+    time_string = match.group(0)
+
+    if time_string.find("_") == -1:
+        time_parsed = datetime.datetime.strptime(time_string, "%Y-%m-%dT%H-%M-%S")
+    else:
+        time_stamp_part = time_string.split("_")[0]
+        extra_part = int(time_string.split("_")[1])
+        time_parsed = datetime.datetime.strptime(time_stamp_part, "%Y-%m-%dT%H-%M-%S")
+        time_parsed = time_parsed + datetime.timedelta(milliseconds=extra_part)
     return time_parsed
 
 

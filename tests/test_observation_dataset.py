@@ -48,7 +48,7 @@ def test_get_datasets(get_obs_ids):
 
     assert demod_df is None
     assert meta_df.shape[0] == 3
-    assert meta_df.shape[1] == 12
+    assert meta_df.shape[1] == 13
     assert '5740805' in meta_df.index
     assert '5738648' in meta_df.index
     assert '5740806' in meta_df.index

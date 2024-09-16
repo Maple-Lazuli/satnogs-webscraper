@@ -6,7 +6,7 @@ import os
 import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.observation_scraper as obs
 import satnogs_webscraper.observation_list_scraper as ols
-from satnogs_webscraper.observation_dataset import get_datasets
+from satnogs_webscraper.observation_dataset import get_dataset, get_datasets
 
 
 class Results(Enum):
@@ -43,6 +43,8 @@ class Scraper:
     save_name: str = "scrape"
     cpus: int = 0
     grey_scale: bool = True
+    kaitai_interface: object = None
+    meta_df_only: bool = False
 
     def __post_init__(self):
         self.waterfall = Results(self.waterfall)
@@ -133,7 +135,11 @@ class Scraper:
         print("Scraping Observation Pages...")
         obs_scraper = obs.ObservationScraper(cpus=self.cpus, grey_scale=self.grey_scale)
         obs_scraper.multiprocess_scrape_observations(ids)
-        return get_datasets(ids)
+
+        if self.meta_df_only:
+            return get_dataset(ids)
+        else:
+            return get_datasets(ids, self.kaitai_interface)
 
 
 if __name__ == '__main__':
