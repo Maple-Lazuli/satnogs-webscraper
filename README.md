@@ -8,7 +8,7 @@ SatNOGS is a crowd sourced network of satellite groundstations the collect satel
 telemetry from small cubesats that emit telemetry signals in UHF and VHF. The data collected by the SatNOGS community is very high
 quality and could be a boon for data science projects.
 
-This project is a webscraper that the scrapes data off of the public facing website and aggregates the data into pandas
+This project is a webscraper the scrapes data off of the public facing website and aggregates the data into pandas
 dataframe for data science applications.
 
 ## Setup
@@ -60,7 +60,7 @@ for sourcing and attribution of the demod.
 
 ![demod272](sources/demod272.png)
 
-The code snippet below is contains of all the code used in this section.
+The code snippet below contains of all the code used in this section.
 
 ```python
 import satnogs_webscraper as sw
@@ -92,7 +92,7 @@ demod_146 = demod_df.loc[146].dataframe
 demod_146 = demod_146[demod_146['meta_key'].apply(lambda x: x in keys)]
 ```
 
-__Explaination__: Start by doing the importing the module and creating the scraper object. Next run the `scrape` method to get 
+__Explaination__: Start by importing the module and creating the scraper object. Next run the `scrape` method to get 
 the dataframes. After that, filter the metadata dataframe to only entries that have the string `"EU1AEM"`. Convert the 
 keys to a deduplicated set. Finally, use that set to filter the demodulated data.
 
