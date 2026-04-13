@@ -70,7 +70,7 @@ def crop_and_save_psd(input_image, delete_original=True, greyscale=True, resize=
     if resize:
         size = im_cropped.size
         if size[0] != resize_dimen[0] or size[1] != resize_dimen[1]:
-            im_cropped = im_cropped.resize(resize_dimen, Image.Resampling.LANCZOS)
+            im_cropped = im_cropped = im_cropped.resize(resize_dimen, Image.LANCZOS)
 
     # Convert to greyscale and save as unit8 bytes to disk, using the original file name, minus the file extension
 
