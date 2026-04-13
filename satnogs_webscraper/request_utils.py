@@ -32,6 +32,8 @@ def get_request(url, max_count=None):
 
 
 def write_log(url, code, comment=""):
+    if not os.path.exists(cnst.directories['logs']):
+        os.makedirs(cnst.directories['logs'], exist_ok=True)
     log_name = f"{int(time.time())}-{''.join([str(random.randint(0, 9)) for _ in range(9)])}.json"
     with open(os.path.join(cnst.directories['logs'], log_name), "w") as log_out:
         json.dump({
