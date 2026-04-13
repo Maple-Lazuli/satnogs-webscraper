@@ -3,6 +3,7 @@ import os
 observations = 'observations/'
 satellites = "satellites/"
 web_address = "https://network.satnogs.org/"
+sat_db_address = "https://db.satnogs.org/search/?q="
 
 observation_template = {
     'Observation_id': None,
