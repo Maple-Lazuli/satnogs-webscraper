@@ -7,7 +7,7 @@ import satnogs_webscraper.constants as cnst
 import satnogs_webscraper.observation_scraper as obs
 import satnogs_webscraper.observation_list_scraper as ols
 from satnogs_webscraper.observation_dataset import get_dataset, get_datasets
-
+import satnogs_webscraper.resolve_sat_id as rsi
 
 class Results(Enum):
     IGNORE = -1
@@ -25,6 +25,7 @@ class Artifacts(Enum):
 @dataclass
 class Scraper:
     norad: str = ""  # Norad number for the ISS
+    sat_id: str = "" # Satnogs Internal ID
     future: bool = False
     good: bool = True
     bad: bool = False
@@ -73,7 +74,14 @@ class Scraper:
         if not self.failed:
             url.append('failed=0')
 
-        url.append(f'norad={self.norad}')
+        if self.sat_id != "":
+            url.append(f'sat_id={self.sat_id}')
+        elif self.norad != "":
+            sat_id = rsi.get_sat_id(self.norad)
+            if sat_id != None:
+                self.sat_id = sat_id
+                url.append(f'sat_id={self.sat_id}')
+
         url.append(f'observer={self.observer}')
 
         url.append(f'station={self.station_id}')
