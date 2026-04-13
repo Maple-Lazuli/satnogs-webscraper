@@ -91,11 +91,11 @@ class ObservationScraper:
                 template['Waterfall_Status'] = waterfall_status.text.strip()
 
             meta_data_element = observation_web_page.find('pre', id='json-metadata')
-            meta_data_json = meta_data_element['data-json']
-            if meta_data_json is not None:
+            if meta_data_element is not None:
+                meta_data_json = meta_data_element['data-json']
                 template['Metadata'] = json.loads(meta_data_json)
             else:
-                ru.write_log(url = url, code=r.status_code, comment="Failed To Extrat Meta Data")
+                ru.write_log(url = url, code=r.status_code, comment="Failed To Extract Meta Data")
             status = observation_web_page.select("#rating-status > span")
             if (status is not None) & (status[0] is not None):
                 template['Status'] = status[0].text.strip()
