@@ -125,5 +125,5 @@ if __name__ == "__main__":
     bad_signals = "https://network.satnogs.org/observations/?future=0&failed=0&norad=&observer=&station=&start=&end=&rated=rw0&transmitter_mode="
     fetch_bad = ObservationListFetch(url=bad_signals, save_name="bad.json",
                                      save_dir=cnst.directories["observation_pages"],
-                                     resume=False, page_limit=50)
+                                     resume=False, page_limit=5)
     fetch_bad.fetch_ids()
