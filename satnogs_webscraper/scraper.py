@@ -80,10 +80,10 @@ class Scraper:
             sat_id = rsi.get_sat_id(self.norad)
             if sat_id != None:
                 self.sat_id = sat_id
+                print(f"Resolved {self.norad} to {self.sat_id}")
                 url.append(f'sat_id={self.sat_id}')
 
         url.append(f'observer={self.observer}')
-
         url.append(f'station={self.station_id}')
 
         if self.waterfall != Results.IGNORE:
