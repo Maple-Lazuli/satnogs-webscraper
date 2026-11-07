@@ -76,7 +76,6 @@ class ObservationScraper:
             template = cnst.observation_template.copy()
             r = ru.get_request(url)
             if r is None:
-                # TODO: Make a null template for easy filtering after scraping
                 return template
             observation_web_page = bs(r.content, "html5lib")
             table_rows = observation_web_page.find_all("tr")
@@ -96,12 +95,8 @@ class ObservationScraper:
                 template['Metadata'] = json.loads(meta_data_json)
             else:
                 ru.write_log(url = url, code=r.status_code, comment="Failed To Extract Meta Data")
-            status = observation_web_page.select("#rating-status > span")
-            if (status is not None) & (status[0] is not None):
-                template['Status'] = status[0].text.strip()
-                template['Status_Message'] = status[0].attrs['title'].strip()
-            template['Observation_id'] = observation
 
+            template['Observation_id'] = observation
             template['demods'] = []
             demod_tasks = []
 
@@ -190,6 +185,9 @@ class ObservationScraper:
                 polar_dict = dict()
             return "Polar_Plot", polar_dict
 
+        if contents.find(">Status</span>") != -1:
+            return "Status", tr.select_one('#rating-status').select_one("span").text
+
         if contents.find("Downloads") != -1:
             audio = None
             waterfall = None
@@ -250,9 +248,10 @@ if __name__ == '__main__':
     # Demonstration of use
     print("Single Scrapes")
     scraper = ObservationScraper(check_disk=False)
-    scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/5025420/')
+
+    scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/15392124/')
     scrape2 = scraper.scrape_observation('https://network.satnogs.org/observations/6881948/')
     print(f"{scrape1}")
     print(f"{scrape2}")
     print("Multiprocess Observations Pull")
-    scraper.multiprocess_scrape_observations([5025420, 6881948])
+    scraper.multiprocess_scrape_observations([15375071, 6881948])

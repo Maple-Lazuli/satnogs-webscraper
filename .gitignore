@@ -9,7 +9,7 @@ tests/__pycache__/*
 .pytest_cache/*
 build/*
 dist/*
-satnogs-data/*
+*/satnogs-data/*
 satnogs_webscraper.egg-info/*
 satnogs_webscraper/__pycache__/*
 __pycache__/*

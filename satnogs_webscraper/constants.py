@@ -11,7 +11,6 @@ observation_template = {
     'Satellite': None,
     'Station': None,
     'Status': None,
-    'Status_Message': None,
     'Frequency': None,
     'Mode': None,
     'Metadata': None,
