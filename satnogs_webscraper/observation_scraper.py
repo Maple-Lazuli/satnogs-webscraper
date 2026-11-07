@@ -128,13 +128,10 @@ class ObservationScraper:
         else:
             return None, None
 
-        if contents.find("Satellite") != -1:
-            try:
-                second_element = tr.select_one('td:nth-child(2)')
-                second_element = second_element.find("a")
-                return "Satellite", second_element.text.strip()
-            except:
-                return "Satellite", ""
+        if contents.find(">Satellite<") != -1:
+            second_element = tr.select_one('td:nth-child(2)')
+            second_element = second_element.find("a")
+            return "Satellite", second_element.text.strip()
 
         if (contents.find("Station") != -1) and (contents.find("Owner") == -1):
             try:
@@ -249,7 +246,7 @@ if __name__ == '__main__':
     print("Single Scrapes")
     scraper = ObservationScraper(check_disk=False)
 
-    scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/15392124/')
+    scrape1 = scraper.scrape_observation('https://network.satnogs.org/observations/7206380/')
     scrape2 = scraper.scrape_observation('https://network.satnogs.org/observations/6881948/')
     print(f"{scrape1}")
     print(f"{scrape2}")
