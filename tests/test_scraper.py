@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 import subprocess
 
+
 @pytest.fixture()
 def prep_directories():
     if os.path.exists(cnst.directories['data']):
@@ -16,9 +17,9 @@ def prep_directories():
     yield None
     shutil.rmtree(cnst.directories['data'])
 
+
 @pytest.fixture()
 def get_kaitai_parser():
-
     if os.path.exists(cnst.directories['data']):
         shutil.rmtree(cnst.directories['data'])
     cnst.verify_directories()
@@ -49,12 +50,12 @@ def get_kaitai_parser():
 
 
 def test_scraper_init(prep_directories):
-    expected_string = 'https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&norad=&observer=&' \
+    expected_string = 'https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&observer=&' \
                       'station=&start=&end=&transmitter_mode='
     scraper = Scraper()
     assert scraper.generate_query_string() == expected_string
 
-    expected_string2 = 'https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&norad=44352&' \
+    expected_string2 = 'https://network.satnogs.org/observations/?future=0&bad=0&unknown=0&failed=0&sat_id=RHUX-5355-9162-3098-2723&' \
                        'observer=&station=&start=&end=&transmitter_mode='
 
     scraper2 = Scraper(norad="44352")
@@ -84,8 +85,8 @@ def test_scraper_scrape_contents(prep_directories):
 
     # Testing meta df
     assert meta_df.shape[0] == 20
-    assert meta_df.shape[1] == 13
-    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status', 'Status_Message',
+    assert meta_df.shape[1] == 12
+    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status',
                             'Frequency', 'Mode', 'Metadata', 'Downloads', 'Waterfall_Status',
                             'Polar_Plot', 'meta_key']:
         assert expected_column in meta_df.columns
@@ -94,9 +95,9 @@ def test_scraper_scrape_contents(prep_directories):
 
     df_merged = pd.merge(meta_df, demod_272, on='meta_key', how='right')
     assert df_merged.shape[0] == 20
-    assert df_merged.shape[1] == 285
+    assert df_merged.shape[1] == 284
 
-    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status', 'Status_Message',
+    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status',
                             'Frequency', 'Mode', 'Metadata', 'Downloads', 'Waterfall_Status',
                             'Polar_Plot', 'meta_key']:
         assert expected_column in df_merged.columns
@@ -121,11 +122,11 @@ def test_scraper_scrape_contents(prep_directories):
 
 def test_kaitai_struct_interface(get_kaitai_parser):
     scraper = Scraper(norad="44352", data=1, save_name="Armadillo", list_page_limit=3,
-                         kaitai_interface=get_kaitai_parser)
+                      kaitai_interface=get_kaitai_parser)
 
     meta_df, demod_df = scraper.scrape()
 
-    assert meta_df.shape[1] == 14
+    assert meta_df.shape[1] == 13
     assert sum(meta_df['kaitai'].apply(len) > 0) > 10
 
     kaitai_obj = meta_df[meta_df['kaitai'].apply(len) > 0].kaitai[0][0]
@@ -133,4 +134,3 @@ def test_kaitai_struct_interface(get_kaitai_parser):
     assert type(kaitai_obj._io) == kaitaistruct.KaitaiStream
 
     assert kaitai_obj.ax25_frame is not None
-

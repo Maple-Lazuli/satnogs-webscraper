@@ -48,7 +48,8 @@ def test_get_datasets(get_obs_ids):
 
     assert demod_df is None
     assert meta_df.shape[0] == 3
-    assert meta_df.shape[1] == 13
+    assert meta_df.shape[1] == 12
+
     assert '5740805' in meta_df.index
     assert '5738648' in meta_df.index
     assert '5740806' in meta_df.index
@@ -56,7 +57,7 @@ def test_get_datasets(get_obs_ids):
     for idx in range(0,3):
         assert meta_df.iloc[idx].meta_key == -1
 
-    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status', 'Status_Message',
+    for expected_column in ['Timeframe', 'Satellite', 'Station', 'Status',
                             'Frequency', 'Mode', 'Metadata', 'Downloads', 'Waterfall_Status',
                             'Polar_Plot', 'meta_key']:
         assert expected_column in meta_df.columns

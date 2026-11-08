@@ -12,7 +12,6 @@ record_7206380 = {
     'Satellite': '43880  - UWE-4',
     'Station': '2802 - geoscan-2',
     'Status': 'Good',
-    'Status_Message': '100',
     'Frequency': '435,599,000Hz',
     'Mode': 'FSK 9600',
     'Metadata': {'radio': {'name': 'gr-satnogs',
