@@ -20,6 +20,5 @@ def process_Frames(kaitai_interface, data):
                 index += bytes_processed
                 frames.append(frame)
         except Exception as e:
-            warnings.warn("Error while processing bytes: " + str(e))
             index += 1
     return frames
