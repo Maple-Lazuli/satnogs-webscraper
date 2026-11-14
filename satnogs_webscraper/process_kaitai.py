@@ -1,7 +1,5 @@
 import io
-from kaitaistruct import KaitaiStream, BytesIO
-
-import warnings
+from kaitaistruct import KaitaiStream
 
 
 def process_Frames(kaitai_interface, data):
