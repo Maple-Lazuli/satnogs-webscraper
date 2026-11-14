@@ -4,7 +4,9 @@ import os
 import pandas as pd
 import re
 import satnogs_webscraper.constants as cnst
-import warnings
+
+
+from satnogs_webscraper.process_kaitai import process_Frames
 
 
 def save_dataset(observation_list, save_name):
@@ -45,14 +47,9 @@ def get_datasets(observation_list, kaitai_interface=None):
                     'meta_key': common_key
                 })
                 if kaitai_interface is not None:
-                    from kaitaistruct import KaitaiStream, BytesIO
                     if 'kaitai' not in observation_dictionary.keys():
                         observation_dictionary['kaitai'] = []
-                    try:
-                        observation_dictionary['kaitai'].append(kaitai_interface(KaitaiStream(BytesIO(demod_data))))
-                    except Exception as e:
-                        warnings.warn(f"Error parsing demod. Error:{e}")
-                        pass
+                    observation_dictionary['kaitai'].append(process_Frames(kaitai_interface=kaitai_interface, data=demod_data))
         observations.append(observation_dictionary)
         common_key += 1
 
@@ -94,7 +91,6 @@ def get_datasets(observation_list, kaitai_interface=None):
 
 
 def get_demod_time(demod_url):
-
     pattern = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}(?:_\d+)?"
     match = re.search(pattern, demod_url)
     time_string = match.group(0)
