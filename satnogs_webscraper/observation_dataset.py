@@ -49,7 +49,10 @@ def get_datasets(observation_list, kaitai_interface=None):
                 if kaitai_interface is not None:
                     if 'kaitai' not in observation_dictionary.keys():
                         observation_dictionary['kaitai'] = []
-                    observation_dictionary['kaitai'].extend(process_Frames(kaitai_interface=kaitai_interface, data=demod_data))
+                    observation_dictionary['kaitai'].append({
+                        'demod_time': get_demod_time(demod['original_name']),
+                        'kaitai_frames': process_Frames(kaitai_interface=kaitai_interface, data=demod_data)
+                    })
         observations.append(observation_dictionary)
         common_key += 1
 
@@ -91,18 +94,38 @@ def get_datasets(observation_list, kaitai_interface=None):
 
 
 def get_demod_time(demod_url):
-    pattern = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}(?:_\d+)?"
-    match = re.search(pattern, demod_url)
-    time_string = match.group(0)
+    try:
+        pattern_hyphen = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}(?:_\d+)?"
+        match = re.search(pattern_hyphen, demod_url)
 
-    if time_string.find("_") == -1:
-        time_parsed = datetime.datetime.strptime(time_string, "%Y-%m-%dT%H-%M-%S")
-    else:
-        time_stamp_part = time_string.split("_")[0]
-        extra_part = int(time_string.split("_")[1])
-        time_parsed = datetime.datetime.strptime(time_stamp_part, "%Y-%m-%dT%H-%M-%S")
-        time_parsed = time_parsed + datetime.timedelta(milliseconds=extra_part)
-    return time_parsed
+        if match:
+            time_string = match.group(0)
+            if "_" not in time_string:
+                time_parsed = datetime.datetime.strptime(time_string, "%Y-%m-%dT%H-%M-%S")
+            else:
+                base_time, extra_ms = time_string.split("_")
+                time_parsed = datetime.datetime.strptime(base_time, "%Y-%m-%dT%H-%M-%S")
+                time_parsed += datetime.timedelta(milliseconds=int(extra_ms))
+        else:
+            # 2. Fall back to the second format: YYYY-MM-DDTHHMMSS (with optional fractional seconds and Z)
+            pattern_compact = r"\d{4}-\d{2}-\d{2}T\d{2}\d{2}\d{2}(?:\.\d+)?Z?"
+            match = re.search(pattern_compact, demod_url)
+
+            if not match:
+                raise ValueError(f"No valid timestamp found in URL: {demod_url}")
+
+            time_string = match.group(0)
+            # Remove trailing 'Z' if present for standard parsing
+            clean_str = time_string.rstrip("Z")
+
+            if "." in clean_str:
+                time_parsed = datetime.datetime.strptime(clean_str, "%Y-%m-%dT%H%M%S.%f")
+            else:
+                time_parsed = datetime.datetime.strptime(clean_str, "%Y-%m-%dT%H%M%S")
+
+        return time_parsed
+    except:
+        return None
 
 
 def find_largest_number(string):

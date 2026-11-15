@@ -1,5 +1,6 @@
 import io
 from kaitaistruct import KaitaiStream
+from operator import attrgetter
 
 
 def process_Frames(kaitai_interface, data):
@@ -20,3 +21,25 @@ def process_Frames(kaitai_interface, data):
         except Exception as e:
             index += 1
     return frames
+
+
+def extract_paths(record):
+    fields = record.__doc__.split("\n")
+    paths = []
+    for field in fields:
+        if field.find(":") == -1:
+            continue
+        field = field.split(":")[-1].strip()
+        paths.append(field)
+    return paths
+
+
+def create_kaitai_dictionary(record):
+    paths = extract_paths(record)
+    record_dict = dict()
+    for path in paths:
+        try:
+            record_dict[path] = attrgetter(path)(record)
+        except:
+            pass
+    return record_dict
