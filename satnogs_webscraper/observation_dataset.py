@@ -49,7 +49,7 @@ def get_datasets(observation_list, kaitai_interface=None):
                 if kaitai_interface is not None:
                     if 'kaitai' not in observation_dictionary.keys():
                         observation_dictionary['kaitai'] = []
-                    observation_dictionary['kaitai'].append(process_Frames(kaitai_interface=kaitai_interface, data=demod_data))
+                    observation_dictionary['kaitai'].extend(process_Frames(kaitai_interface=kaitai_interface, data=demod_data))
         observations.append(observation_dictionary)
         common_key += 1
 

@@ -10,7 +10,7 @@ def process_Frames(kaitai_interface, data):
         # Note that this has been tested to work with version 0.11
         try:
             frame = kaitai_interface(current_stream)
-            bytes_processed = current_stream.pos
+            bytes_processed = current_stream.pos()
 
             if bytes_processed == 0:
                 index += 1
